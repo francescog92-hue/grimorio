@@ -205,6 +205,18 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .d-empty h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0 0 8px}
 .d-empty ul{margin:10px 0 0;padding-left:20px;color:var(--ink-2)}
 .d-empty li{margin:4px 0}
+.pg-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:2px 0 20px;margin:0 0 18px;border-bottom:1px solid var(--line)}
+.pg-card .pc-name{font-family:var(--display);font-weight:400;font-size:36px;line-height:1.1;margin:0 0 4px;overflow-wrap:anywhere}
+.pg-card .pc-meta{margin:0 0 14px;color:var(--ink-2);font-size:15px}
+.pc-frame{display:block;width:min(340px,100%);aspect-ratio:3/4;padding:0;border:4px solid var(--pill-dark);border-radius:14px;overflow:hidden;background:var(--surface-2);box-shadow:var(--shadow);cursor:pointer}
+.pc-frame.sq{aspect-ratio:1/1;width:min(360px,100%)}
+.pc-frame.ell{border-radius:50%}
+.pc-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.pc-frame.empty{width:min(220px,100%);border-style:dashed;border-color:var(--line-2);box-shadow:none;display:grid;place-items:center;color:var(--ink-3);font-family:var(--display);font-size:80px}
+.pg-card .pc-add{margin-top:10px;font-size:14px;font-weight:700;color:var(--accent)}
+.d-card .pg-card{border-bottom:0;margin-bottom:0;padding-top:8px}
+.pc-tip{text-align:center;color:var(--ink-3);font-size:14px;margin:0 0 4px}
+.d-empty .d-hint{font-family:var(--display);font-weight:400;font-size:22px;margin:0 0 6px}
 .edited-tag{font-size:12px;font-weight:800;color:var(--accent);letter-spacing:.06em;text-transform:uppercase;margin-left:6px}
 
 /* ---------- Fogli modali ---------- */
@@ -741,6 +753,8 @@ async function saveToFile(){
 /* ================= Testata ================= */
 function renderHeader(){
   const b = book(), c = clsOf(b);
+  const dp = document.getElementById("detailPane");
+  if (dp && (dp.classList.contains("empty") || cardOpen)){ const card = dp.querySelector(".pg-card"); if (card) card.outerHTML = pgCard(b); }
   $("#pgName").textContent = b.name;
   const pb = $("#portraitBtn");
   pb.innerHTML = portraitHTML(b);
@@ -1035,13 +1049,29 @@ function castOptions(s, b){
 }
 const closeBtn = pos => `<button class="btn d-close${pos === "bottom" ? " bottom" : ""}" data-act="close-detail">← Torna all'elenco</button>`;
 function selKey(){ return UI.section === "spells" ? UI.selS : UI.section === "trait" ? UI.selF : UI.selT; }
+let cardOpen = false;
+/* Il personaggio in grande: nome, specie · classe · livello e ritratto con la sua cornice. */
+function pgCard(b){
+  if (!b) return "";
+  const p = b.portrait, sub = subOf(b);
+  const meta = [raceName(b), b.cls === "X" ? "" : className(b) + (sub ? " · " + sub.n : ""), "livello " + b.lvl].filter(Boolean).join(" · ");
+  const frame = p
+    ? `<button class="pc-frame${SHAPES[p.shape].ar[0] === 1 ? " sq" : ""}${isEllipse(p.shape) ? " ell" : ""}" data-act="portrait" aria-label="Ritratto di ${esc(b.name)}: tocca per modificarlo"><img src="${p.img}" alt="Ritratto di ${esc(b.name)}"></button>`
+    : `<button class="pc-frame empty" data-act="portrait" aria-label="Aggiungi un ritratto a ${esc(b.name)}">${esc((b.name || "?").trim().charAt(0).toUpperCase())}</button><span class="pc-add">Tocca per aggiungere un ritratto</span>`;
+  return `<div class="pg-card"><h2 class="pc-name">${esc(b.name)}</h2><p class="pc-meta">${esc(meta)}</p>${frame}</div>`;
+}
 function renderDetail(){
   const pane = $("#detailPane"), key = selKey();
+  if (cardOpen && narrow()){
+    pane.classList.remove("empty");
+    pane.innerHTML = `<div class="detail d-card">${closeBtn()}${pgCard(book())}<p class="pc-tip">Tocca il ritratto per cambiarlo o inquadrarlo di nuovo.</p></div>`;
+    return;
+  }
   let html = null;
   if (key){ html = UI.section === "spells" ? spellDetail(key) : entryDetail(key); if (html == null) setSel(null); }
   if (html == null){
     pane.classList.add("empty"); document.documentElement.classList.remove("detail-open");
-    pane.innerHTML = `<div class="detail d-empty"><h2>${UI.section === "spells" ? "Scegli un incantesimo" : UI.section === "trait" ? "Scegli un privilegio" : "Scegli un talento"}</h2>
+    pane.innerHTML = `<div class="detail d-empty">${pgCard(book())}<h3 class="d-hint">${UI.section === "spells" ? "Scegli un incantesimo" : UI.section === "trait" ? "Scegli un privilegio" : "Scegli un talento"}</h3>
       <p style="margin:0;color:var(--ink-2)">Tocca un nome nell'elenco per leggerne la descrizione completa.</p>
       <ul>${UI.section === "spells" ? `<li><b>✓</b> prepara o impara l'incantesimo${castCfg(book()) && castCfg(book()).mode === "book" ? "; <b>★</b> lo copia nel libro" : ""}.</li><li>Nella scheda puoi <b>lanciarlo</b> spendendo uno slot, <b>modificarlo</b> o <b>nasconderlo</b>.</li><li><b>C</b> e <b>R</b> indicano concentrazione e rituale.</li>`
         : UI.section === "trait" ? `<li>I privilegi seguono classe, sottoclasse e livello scelti in alto.</li><li>Nella scheda di un privilegio puoi impostare gli <b>usi</b> (ad esempio 3 al giorno) e segnarli con le gemme.</li><li>I pulsanti <b>Riposo</b> li ripristinano.</li>`
@@ -1161,7 +1191,14 @@ function entryDetail(key){
 /* ---------- Apertura e chiusura della scheda (su iPad verticale diventa una pagina) ---------- */
 let listScroll = 0;
 function setSel(v){ if (UI.section === "spells") UI.selS = v; else if (UI.section === "trait") UI.selF = v; else UI.selT = v; saveUI(); }
+function openCard(){
+  if (!document.documentElement.classList.contains("detail-open")) listScroll = window.scrollY;
+  cardOpen = true; renderDetail();
+  document.documentElement.classList.add("detail-open");
+  window.scrollTo(0, 0);
+}
 function openDetail(kind, id){
+  cardOpen = false;
   const sec = kind === "s" ? "spells" : kind === "t" ? "feat" : "trait";
   if (UI.section !== sec){ UI.section = sec; renderHeader(); renderTop(true); }
   setSel(id);
@@ -1178,6 +1215,7 @@ function openDetail(kind, id){
 }
 function closeDetail(){
   const wasOpen = document.documentElement.classList.contains("detail-open");
+  if (cardOpen){ cardOpen = false; renderDetail(); }
   document.documentElement.classList.remove("detail-open");
   if (wasOpen){
     window.scrollTo(0, listScroll);
@@ -1901,7 +1939,7 @@ document.addEventListener("click", e => {
     case "save-all": closeSheet(); saveAll(); break;
     case "load-all": closeSheet(); pickAndOpen(); break;
     case "install": openInstall(); break;
-    case "portrait": openPortrait(); break;
+    case "portrait": if (narrow() && !el.closest(".pg-card")) openCard(); else openPortrait(); break;
     case "p-pick": closeSheet(); pickPortrait(); break;
     case "p-edit": { const pp = b.portrait; if (pp) openPortraitEditor({ src:pp.src, shape:pp.shape, rot:pp.rot, zoom:pp.zoom, ox:pp.ox, oy:pp.oy }); break; }
     case "p-shape": changeShape(el.dataset.v); break;
