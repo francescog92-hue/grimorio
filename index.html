@@ -1266,17 +1266,17 @@ function openMenu(){
       <button class="btn primary big" data-act="save-all">Salva tutto</button>
       <button class="btn big" data-act="load-all">Carica…</button>
     </div>
-    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva tutto» mette <b>tutti i personaggi</b> in un solo file, «${ALL_NAME}». Tienilo in <i>iCloud Drive › Grimorio D&amp;D</i>: la prima volta scegli quella cartella, poi basta toccare <b>Salva</b> e <b>Sostituisci</b>. Sull'altro dispositivo tocca <b>Carica…</b> e scegli lo stesso file: di ogni personaggio viene tenuta la versione più recente.</p>
+    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva tutto» mette <b>tutti i personaggi</b> in un solo file, «${ALL_NAME}». ${window.GRIMORIO_NATIVE === "android" ? "Tienilo per esempio in <i>Google Drive › Grimorio D&amp;D</i>: la prima volta scegli la cartella, poi <b>Salva</b> scrive direttamente in quel file." : "Tienilo in <i>iCloud Drive › Grimorio D&amp;D</i>: la prima volta scegli quella cartella, poi basta toccare <b>Salva</b> e <b>Sostituisci</b>."} Sull'altro dispositivo tocca <b>Carica…</b> e scegli lo stesso file: di ogni personaggio viene tenuta la versione più recente.</p>
     <div class="menu-list">
       <button class="btn" data-act="export">Salva solo questa scheda…</button>
       <button class="btn" data-act="import">Apri una scheda da file…</button>
       <button class="btn" data-act="chars">Personaggi…</button>
-      <button class="btn" data-act="install">${window.GRIMORIO_NATIVE ? "L'app per iPad…" : "Installa su iPad e iPhone…"}</button>
+      <button class="btn" data-act="install">${window.GRIMORIO_NATIVE ? "Informazioni sull'app…" : "Installa su iPad e iPhone…"}</button>
       <button class="btn" data-act="toggle-hidden">${UI.showHidden ? "Nascondi" : "Mostra"} gli elementi nascosti</button>
     </div>
     <h3>Salvataggio</h3>
     <p>Le schede restano solo su questo dispositivo, senza cloud. ${fileInfo} Il ritratto è salvato dentro la scheda.</p>
-    <p>Per tenere ogni personaggio nella sua cartella, salvalo su file: scegli la cartella <i>Grimorio D&amp;D › Personaggi › ${esc(b.name)}</i> (su iPad, dopo «Salva su File»); per riprenderlo usa «Apri una scheda da file». ${window.GRIMORIO_NATIVE ? "Nell'app per iPad la memoria è conservata dall'app stessa, senza limiti di spazio." : "Su iPad aggiungi la pagina alla schermata Home, così Safari non ne cancella i dati."}</p>
+    <p>Per tenere ogni personaggio nella sua cartella, salvalo su file: scegli la cartella <i>Grimorio D&amp;D › Personaggi › ${esc(b.name)}</i> (su iPad, dopo «Salva su File»); per riprenderlo usa «Apri una scheda da file». ${window.GRIMORIO_NATIVE ? "Nell'app la memoria è conservata dall'app stessa, senza limiti di spazio." : "Su iPad aggiungi la pagina alla schermata Home, così Safari non ne cancella i dati."}</p>
     <h3>Sui testi</h3><p>Incantesimi, classi, sottoclassi, talenti e background vengono dal Manuale del Giocatore (2014), dalla Guida del DM, dalla Guida di Xanathar e dal Calderone di Tasha. Le descrizioni sono riassunti delle regole: tocca <b>Modifica</b> per incollare il testo completo del tuo manuale o correggere un nome.</p>
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
 }
@@ -1743,12 +1743,12 @@ async function saveIcon(usePortrait){
 function openInstall(){
   const b = book();
   if (IS_NATIVE){
-    openSheet(`<h2 tabindex="-1" autofocus>Il Grimorio su iPad</h2>
-      <p>Stai usando il Grimorio come <b>app per iPad</b> (Swift Playgrounds): funziona interamente sul dispositivo, <b>senza internet e senza account</b>. Per aprirlo: Swift Playgrounds › progetto <b>Grimorio</b> › ▶︎.</p>
+    openSheet(`<h2 tabindex="-1" autofocus>Il Grimorio come app</h2>
+      <p>Stai usando il Grimorio come <b>app${window.GRIMORIO_NATIVE === "android" ? " Android" : ""}</b>: funziona interamente sul dispositivo, <b>senza internet e senza account</b>.</p>
       <h3>Personaggi</h3>
-      <p>L'app ricorda i personaggi da sola. Per tenerne una copia sicura o portarli sul PC usa <b>Menu › Salva la scheda su file</b> e scegli la cartella del personaggio; per riaprirli usa <b>Apri una scheda da file</b>.</p>
-      <h3>Su iPhone</h3>
-      <p>Swift Playgrounds non esiste su iPhone: lì usa la versione nella cartella <b>App iPad e iPhone</b>. I file dei personaggi sono gli stessi.</p>
+      <p>L'app ricorda i personaggi da sola. Per tenerne una copia sicura o passarli a un altro dispositivo tocca <b>Salva</b> in alto: tutti i personaggi finiscono in un solo file, «${ALL_NAME}». Sull'altro dispositivo usa <b>Menu › Carica…</b> e scegli quel file.</p>
+      <h3>Altri dispositivi</h3>
+      <p>Su iPad e iPhone il Grimorio si installa da Safari (<b>Condividi › Aggiungi alla schermata Home</b>); su PC si apre «Apri il Grimorio.html». Il file dei personaggi è lo stesso ovunque.</p>
       <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
     return;
   }
@@ -1769,6 +1769,7 @@ function openInstall(){
   }
   if (!window.claude){
     openSheet(`<h2 tabindex="-1" autofocus>Installa su iPad e iPhone</h2>
+      <p>Su Android installa <b>App Android › Grimorio.apk</b> (istruzioni nel LEGGIMI di quella cartella).</p>
       <p>Nella cartella <b>Grimorio D&amp;D</b> c'è la sottocartella <b>App iPad e iPhone</b>: è il Grimorio in versione app installabile, che sull'iPad e sull'iPhone si apre da un'icona sulla schermata Home e funziona <b>senza internet e senza account</b>.</p>
       <ol class="steps">
         <li>Metti online una volta sola il contenuto di quella cartella (per esempio con GitHub Pages, gratis): i passaggi sono nel file <b>LEGGIMI - installazione.txt</b>.</li>
