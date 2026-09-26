@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · c18208";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · 75c503";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -639,35 +639,53 @@ function updateSaveBtn(){
   el.title = dirty ? "Ci sono modifiche da salvare su file" : `Tutto salvato su file (${stamp(st.at)})`;
 }
 function allPayload(at){ return JSON.stringify({ app:"libro-incantesimi", v:3, kind:"tutti", savedAt:at, active:S.active, books:S.books }); }
-async function saveAll(){
+/* Il file dell'ultimo salvataggio: sul PC (Edge/Chrome) resta collegato anche dopo aver chiuso l'app. */
+function kvDb(){ return new Promise((ok, ko) => { const r = indexedDB.open("grimorio", 1); r.onupgradeneeded = () => r.result.createObjectStore("kv"); r.onsuccess = () => ok(r.result); r.onerror = () => ko(r.error); }); }
+async function kvGet(k){ try { const db = await kvDb(); return await new Promise(ok => { const q = db.transaction("kv").objectStore("kv").get(k); q.onsuccess = () => ok(q.result); q.onerror = () => ok(undefined); }); } catch(e){ return undefined; } }
+async function kvSet(k, v){ try { const db = await kvDb(); await new Promise(ok => { const t = db.transaction("kv", "readwrite"); if (v == null) t.objectStore("kv").delete(k); else t.objectStore("kv").put(v, k); t.oncomplete = t.onerror = () => ok(); }); } catch(e){} }
+async function setAllHandle(h){ S.allHandle = h; if (canPickFile()) await kvSet("allHandle", h || null); }
+async function writeHandle(h, payload){
+  if (h.queryPermission && (await h.queryPermission({ mode:"readwrite" })) !== "granted"
+      && (await h.requestPermission({ mode:"readwrite" })) !== "granted") return false;
+  const w = await h.createWritable(); await w.write(payload); await w.close(); return true;
+}
+const saveName = () => { const st = lsGet(ALL_KEY); return (st && st.name) || ALL_NAME; };
+const newSaveName = () => { const d = new Date(), z = n => String(n).padStart(2, "0");
+  return `Grimorio - personaggi ${z(d.getDate())}-${z(d.getMonth() + 1)}-${d.getFullYear()} ${z(d.getHours())}.${z(d.getMinutes())}.json`; };
+/* «Salva»: riscrive l'ultimo salvataggio. «Crea nuovo salvataggio» (fresh): un file nuovo, che da quel momento è quello di «Salva». */
+async function saveAll(fresh){
   const at = Date.now(), payload = allPayload(at), n = Object.keys(S.books).length;
+  let name = fresh ? newSaveName() : saveName();
   const done = how => {
     Object.values(S.books).forEach(b => { b.fileSavedAt = at; });
-    lsSet(ALL_KEY, { at, sig:allSig() }); cacheLocal(); localStatus();
+    lsSet(ALL_KEY, { at, sig:allSig(), name }); cacheLocal(); localStatus();
     toast(`${n === 1 ? "Personaggio salvato" : n + " personaggi salvati"}${how ? " " + how : ""}`);
   };
   if (canPickFile()){
-    if (S.allHandle){
-      try { const w = await S.allHandle.createWritable(); await w.write(payload); await w.close(); done(`in ${S.allHandle.name}`); return; }
-      catch(e){ S.allHandle = null; }
+    if (!fresh && S.allHandle){
+      try { if (await writeHandle(S.allHandle, payload)){ name = S.allHandle.name; done(`in ${name}`); return; } }
+      catch(e){ await setAllHandle(null); }
     }
     try {
-      const h = await window.showSaveFilePicker({ id:"grimorio-salvataggio", startIn:"documents", suggestedName:ALL_NAME, types:[{ description:"Salvataggio del Grimorio", accept:{ "application/json":[".json"] } }] });
-      const w = await h.createWritable(); await w.write(payload); await w.close(); S.allHandle = h; done(`in ${h.name}`); return;
+      const h = await window.showSaveFilePicker({ id:"grimorio-salvataggio", startIn:"documents", suggestedName:name, types:[{ description:"Salvataggio del Grimorio", accept:{ "application/json":[".json"] } }] });
+      const w = await h.createWritable(); await w.write(payload); await w.close();
+      await setAllHandle(h); name = h.name; done(`in ${name}`); return;
     } catch(e){ if (e && e.name === "AbortError") return; }
   }
   if (S.downloads){
-    try { await S.downloads.save({ filename:ALL_NAME, data:payload }); done(""); }
+    try { await S.downloads.save({ filename:name, data:payload }); done(""); }
     catch(e){ if (!e || e.code !== "declined") showCopy(payload); }
     return;
   }
   if (!window.claude){
-    const shared = await shareFile(new Blob([payload], {type:"application/json"}), ALL_NAME, "application/json");
+    window.__grimorioSalvataggio = { tutti:true, nuovo:!!fresh };   // per l'app Android
+    const shared = await shareFile(new Blob([payload], {type:"application/json"}), name, "application/json");
+    window.__grimorioSalvataggio = null;
     if (shared === "ok"){ done(""); return; }
     if (shared === "abort") return;
     try {
       const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([payload], {type:"application/json"}));
-      a.download = ALL_NAME; document.body.appendChild(a); a.click(); a.remove(); done("(nei download)"); return;
+      a.download = name; document.body.appendChild(a); a.click(); a.remove(); done("(nei download)"); return;
     } catch(e){}
   }
   showCopy(payload);
@@ -694,8 +712,8 @@ function mergeAll(o, handle){
   if (inFile.size) for (const k of Object.keys(S.books)) if (!inFile.has(k) && isBlankBook(S.books[k])){ delete S.books[k]; delete S.handles[k]; }
   if (!S.books[S.active]) S.active = S.books[o.active] ? o.active : Object.keys(S.books)[0];
   const same = Object.keys(S.books).every(k => inFile.has(k));
-  lsSet(ALL_KEY, { at:Number(o.savedAt) || Date.now(), sig: same ? allSig() : "" });
-  if (handle) S.allHandle = handle;
+  lsSet(ALL_KEY, Object.assign({}, lsGet(ALL_KEY), { at:Number(o.savedAt) || Date.now(), sig: same ? allSig() : "" }, handle ? { name:handle.name } : {}));
+  if (handle) setAllHandle(handle);
   cacheLocal(); localStatus(); closeSheet(); closeDetail(); renderAll(true);
   const n = added + replaced;
   toast(n === 1 ? `Caricato: ${names[0]}` : `Caricati ${n} personaggi`);
@@ -1275,7 +1293,8 @@ function openMenu(){
       <button class="btn primary big" data-act="save-all">Salva tutto</button>
       <button class="btn big" data-act="load-all">Carica…</button>
     </div>
-    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva tutto» mette <b>tutti i personaggi</b> in un solo file, «${ALL_NAME}». ${window.GRIMORIO_NATIVE === "android" ? "Tienilo per esempio in <i>Google Drive › Grimorio D&amp;D</i>: la prima volta scegli la cartella, poi <b>Salva</b> scrive direttamente in quel file." : "Tienilo in <i>iCloud Drive › Grimorio D&amp;D</i>: la prima volta scegli quella cartella, poi basta toccare <b>Salva</b> e <b>Sostituisci</b>."} Sull'altro dispositivo tocca <b>Carica…</b> e scegli lo stesso file: i personaggi del file prendono il posto di quelli sul dispositivo (quelli che nel file non ci sono restano).</p>
+    <div class="menu-list" style="margin-bottom:10px"><button class="btn" data-act="save-new">Crea nuovo salvataggio…</button></div>
+    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva» mette <b>tutti i personaggi</b> in un solo file e ${lsGet(ALL_KEY) && lsGet(ALL_KEY).at ? `sovrascrive sempre l'ultimo salvataggio, «${esc(saveName())}»` : "la prima volta ti chiede dove metterlo (per esempio iCloud Drive o Google Drive › Grimorio D&amp;D)"}. ${IS_IOS && !window.GRIMORIO_NATIVE ? "Su iPad e iPhone Apple chiede ogni volta una conferma: <b>Salva su File</b>, poi <b>Salva</b> e <b>Sostituisci</b>." : ""} «Crea nuovo salvataggio» fa un file a parte, con data e ora nel nome, che da quel momento diventa quello di «Salva». Sull'altro dispositivo usa <b>Carica…</b>: i personaggi del file prendono il posto di quelli sul dispositivo.</p>
     <div class="menu-list">
       <button class="btn" data-act="chars">Personaggi…</button>
       ${undo && undo.at ? `<button class="btn" data-act="undo-load">Annulla l'ultimo caricamento (${stamp(undo.at)})</button>` : ""}
@@ -1887,7 +1906,8 @@ document.addEventListener("click", e => {
       }); break;
     }
     case "menu": openMenu(); break;
-    case "save-all": closeSheet(); saveAll(); break;
+    case "save-all": closeSheet(); saveAll(false); break;
+    case "save-new": closeSheet(); saveAll(true); break;
     case "load-all": closeSheet(); pickAndOpen(); break;
     case "undo-load": undoLoad(); break;
     case "install": openInstall(); break;
@@ -1968,6 +1988,7 @@ if (!["spells","trait","feat"].includes(UI.section)) UI.section = "spells";
 renderAll(true);
 localStatus();
 updateSaveBtn();
+if (canPickFile()) kvGet("allHandle").then(h => { if (h && !S.allHandle) S.allHandle = h; });
 if (IS_PWA && IS_IOS && !IS_STANDALONE){
   let seen = null; try { seen = localStorage.getItem("grimorio:install-hint"); } catch(e){}
   if (!seen) setTimeout(() => { toast("Per averlo come app offline: Condividi › Aggiungi alla schermata Home"); try { localStorage.setItem("grimorio:install-hint", "1"); } catch(e){} }, 1200);
