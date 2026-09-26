@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true;</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · 8463f2";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -1316,6 +1316,7 @@ function openMenu(){
     <p>Le schede restano solo su questo dispositivo, senza cloud. ${fileInfo} Il ritratto è salvato dentro la scheda.</p>
     <p>Per tenere ogni personaggio nella sua cartella, salvalo su file: scegli la cartella <i>Grimorio D&amp;D › Personaggi › ${esc(b.name)}</i> (su iPad, dopo «Salva su File»); per riprenderlo usa «Apri una scheda da file». ${window.GRIMORIO_NATIVE ? "Nell'app la memoria è conservata dall'app stessa, senza limiti di spazio." : "Su iPad aggiungi la pagina alla schermata Home, così Safari non ne cancella i dati."}</p>
     <h3>Sui testi</h3><p>Incantesimi, classi, sottoclassi, talenti e background vengono dal Manuale del Giocatore (2014), dalla Guida del DM, dalla Guida di Xanathar e dal Calderone di Tasha. Le descrizioni sono riassunti delle regole: tocca <b>Modifica</b> per incollare il testo completo del tuo manuale o correggere un nome.</p>
+    ${window.GRIMORIO_VERSION ? `<p style="font-size:13px;color:var(--ink-3);margin:12px 0 0">Versione ${esc(window.GRIMORIO_VERSION)}</p>` : ""}
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
 }
 function openChars(){
@@ -1800,6 +1801,8 @@ function openInstall(){
         <li>Scorri e tocca <b>Aggiungi alla schermata Home</b>, poi <b>Aggiungi</b>.</li>
         <li>Da ora apri il Grimorio dalla sua icona: si avvia a schermo intero, anche offline.</li>
       </ol>`}
+      <h3>Su Android</h3>
+      <p>Per telefoni e tablet Android c'è l'app da installare: <a href="Grimorio.apk" download>scarica Grimorio.apk</a>, aprilo e conferma l'installazione.</p>
       <h3>Personaggi</h3>
       <p>I personaggi restano sull'iPad. Per tenerli al sicuro o spostarli su un altro dispositivo usa <b>Menu › Salva la scheda su file</b> e scegli <b>Salva su File</b>, nella cartella del personaggio; per riaprirli usa <b>Apri una scheda da file</b>.</p>
       <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
@@ -2027,8 +2030,14 @@ if (window.claude && typeof window.claude.use === "function") window.claude.use(
 </script>
 
 <script>
-if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1"))
-  navigator.serviceWorker.register("sw.js").catch(function(){});
+if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost" || location.hostname === "127.0.0.1")){
+  // La pagina si aggiorna da sola (arriva dalla rete quando c'è); qui si tiene aggiornato anche il
+  // componente offline, all'avvio e ogni volta che l'app torna in primo piano.
+  navigator.serviceWorker.register("sw.js").then(function(reg){
+    reg.update().catch(function(){});
+    document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "visible") reg.update().catch(function(){}); });
+  }).catch(function(){});
+}
 </script>
 </body>
 </html>
