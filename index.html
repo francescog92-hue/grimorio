@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · 8463f2";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · c18208";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -674,40 +674,40 @@ async function saveAll(){
 }
 const isBlankBook = b => b.name === "Il mio personaggio" && !b.portrait && !b.race && !b.bg && !b.custom.length && !b.xcustom.length
   && !Object.keys(b.prep).length && !Object.keys(b.book).length && !Object.keys(b.feats).length;
+const UNDO_KEY = "libro-incantesimi:prima-del-carica";
 function mergeAll(o, handle){
-  const inFile = new Set(), kept = [];
-  let added = 0, updated = 0;
+  lsSet(UNDO_KEY, { at:Date.now(), books:S.books, active:S.active });
+  const inFile = new Set(), names = [];
+  let added = 0, replaced = 0;
   for (const fid of Object.keys(o.books)){
     const src = o.books[fid]; if (!src || typeof src !== "object") continue;
     const nb = normBook(src);
     const local = S.books[fid] ? fid : Object.keys(S.books).find(k => !inFile.has(k) && S.books[k].name === nb.name);
-    if (!local){ S.books[fid] = nb; inFile.add(fid); added++; continue; }
-    const cur = S.books[local];
-    if (nb.updated > cur.updated){
-      if (local !== fid){
-        delete S.books[local];
-        if (S.handles[local]){ S.handles[fid] = S.handles[local]; delete S.handles[local]; }
-        if (S.active === local) S.active = fid;
-      }
-      S.books[fid] = nb; inFile.add(fid); updated++;
-    } else {
-      inFile.add(local);
-      if (nb.updated < cur.updated) kept.push(cur.name);
+    if (local && local !== fid){
+      delete S.books[local];
+      if (S.active === local) S.active = fid;
     }
+    if (local) replaced++; else added++;
+    S.books[fid] = nb; inFile.add(fid); names.push(nb.name);
   }
   // il personaggio vuoto creato al primo avvio non serve più
   if (inFile.size) for (const k of Object.keys(S.books)) if (!inFile.has(k) && isBlankBook(S.books[k])){ delete S.books[k]; delete S.handles[k]; }
   if (!S.books[S.active]) S.active = S.books[o.active] ? o.active : Object.keys(S.books)[0];
-  const same = !kept.length && Object.keys(S.books).every(k => inFile.has(k));
+  const same = Object.keys(S.books).every(k => inFile.has(k));
   lsSet(ALL_KEY, { at:Number(o.savedAt) || Date.now(), sig: same ? allSig() : "" });
   if (handle) S.allHandle = handle;
   cacheLocal(); localStatus(); closeSheet(); closeDetail(); renderAll(true);
-  const parts = [];
-  if (added) parts.push(added === 1 ? "1 personaggio nuovo" : `${added} personaggi nuovi`);
-  if (updated) parts.push(updated === 1 ? "1 aggiornato" : `${updated} aggiornati`);
-  const newer = kept.length ? `su questo dispositivo ${kept.length === 1 ? "è più recente" : "sono più recenti"}: ${kept.join(", ")}` : "";
-  let msg = parts.length ? "Caricati: " + parts.join(", ") + (newer ? " · " + newer : "") : newer ? "Niente da caricare: " + newer : "Era già tutto aggiornato";
-  toast(msg);
+  const n = added + replaced;
+  toast(n === 1 ? `Caricato: ${names[0]}` : `Caricati ${n} personaggi`);
+}
+function undoLoad(){
+  const prev = lsGet(UNDO_KEY); if (!prev || !prev.books) return;
+  S.books = {}; for (const id of Object.keys(prev.books)) S.books[id] = normBook(prev.books[id]);
+  S.active = S.books[prev.active] ? prev.active : Object.keys(S.books)[0];
+  if (!S.active){ const id = rid("pg-"); S.books[id] = newBook(); S.active = id; }
+  try { localStorage.removeItem(UNDO_KEY); } catch(e){}
+  cacheLocal(); localStatus(); closeSheet(); closeDetail(); renderAll(true);
+  toast("Caricamento annullato: i personaggi sono tornati com'erano");
 }
 /* Su iPad e iPhone il salvataggio affidabile passa dal foglio di condivisione («Salva su File»). */
 async function shareFile(blob, fname, mime){
@@ -722,34 +722,6 @@ const IS_PWA = !!window.GRIMORIO_PWA;
 const IS_NATIVE = !!window.GRIMORIO_NATIVE;
 const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 const IS_STANDALONE = window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
-async function saveToFile(){
-  const id = S.active, b = book(), payload = serialize(b), fname = fileName(b);
-  if (canPickFile()){
-    try {
-      const h = await window.showSaveFilePicker({ id:"grimorio-personaggi", startIn:"documents", suggestedName:fname, types:[{ description:"Scheda del personaggio", accept:{ "application/json":[".json"] } }] });
-      S.handles[id] = h; await writeFile(id);
-      if (S.handles[id]) toast(`Salvato in ${h.name}: da ora ogni modifica viene scritta anche lì`);
-      return;
-    } catch(e){ if (e && e.name === "AbortError") return; }
-  }
-  if (S.downloads){
-    try { await S.downloads.save({ filename:fname, data:payload }); b.fileSavedAt = Date.now(); cacheLocal(); toast("Scheda salvata: su iPad scegli «Salva su File» e la cartella del personaggio"); }
-    catch(e){ if (!e || e.code !== "declined") showCopy(payload); }
-    return;
-  }
-  if (!window.claude){
-    const shared = await shareFile(new Blob([payload], {type:"application/json"}), fname, "application/json");
-    if (shared === "ok"){ b.fileSavedAt = Date.now(); cacheLocal(); toast("Scheda salvata"); return; }
-    if (shared === "abort") return;
-    try {
-      const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([payload], {type:"application/json"}));
-      a.download = fname; document.body.appendChild(a); a.click(); a.remove();
-      b.fileSavedAt = Date.now(); cacheLocal(); toast("Scheda scaricata: spostala nella cartella del personaggio"); return;
-    } catch(e){}
-  }
-  showCopy(payload);
-}
-
 /* ================= Testata ================= */
 function renderHeader(){
   const b = book(), c = clsOf(b);
@@ -1296,25 +1268,22 @@ function confirmSheet(title, text, okLabel, onOk){
     sh => sh.querySelector("#okBtn").addEventListener("click", () => { closeSheet(); onOk(); }));
 }
 function openMenu(){
-  const b = book(), h = S.handles[S.active];
-  const fileInfo = h ? `Ogni modifica viene scritta automaticamente in <b>${esc(h.name)}</b>.`
-    : b.fileSavedAt ? `Ultimo salvataggio su file: <b>${stamp(b.fileSavedAt)}</b>${b.updated > b.fileSavedAt + 2000 ? " (ci sono modifiche più recenti)" : ""}.` : "Questa scheda non è ancora stata salvata su file.";
+  const st = lsGet(ALL_KEY), undo = lsGet(UNDO_KEY);
+  const fileInfo = st && st.at ? `Ultimo salvataggio su file: <b>${stamp(st.at)}</b>${st.sig !== allSig() ? " (ci sono modifiche più recenti)" : ""}.` : "Non hai ancora salvato su file.";
   openSheet(`<h2>Menu</h2>
     <div class="menu-pair">
       <button class="btn primary big" data-act="save-all">Salva tutto</button>
       <button class="btn big" data-act="load-all">Carica…</button>
     </div>
-    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva tutto» mette <b>tutti i personaggi</b> in un solo file, «${ALL_NAME}». ${window.GRIMORIO_NATIVE === "android" ? "Tienilo per esempio in <i>Google Drive › Grimorio D&amp;D</i>: la prima volta scegli la cartella, poi <b>Salva</b> scrive direttamente in quel file." : "Tienilo in <i>iCloud Drive › Grimorio D&amp;D</i>: la prima volta scegli quella cartella, poi basta toccare <b>Salva</b> e <b>Sostituisci</b>."} Sull'altro dispositivo tocca <b>Carica…</b> e scegli lo stesso file: di ogni personaggio viene tenuta la versione più recente.</p>
+    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva tutto» mette <b>tutti i personaggi</b> in un solo file, «${ALL_NAME}». ${window.GRIMORIO_NATIVE === "android" ? "Tienilo per esempio in <i>Google Drive › Grimorio D&amp;D</i>: la prima volta scegli la cartella, poi <b>Salva</b> scrive direttamente in quel file." : "Tienilo in <i>iCloud Drive › Grimorio D&amp;D</i>: la prima volta scegli quella cartella, poi basta toccare <b>Salva</b> e <b>Sostituisci</b>."} Sull'altro dispositivo tocca <b>Carica…</b> e scegli lo stesso file: i personaggi del file prendono il posto di quelli sul dispositivo (quelli che nel file non ci sono restano).</p>
     <div class="menu-list">
-      <button class="btn" data-act="export">Salva solo questa scheda…</button>
-      <button class="btn" data-act="import">Apri una scheda da file…</button>
       <button class="btn" data-act="chars">Personaggi…</button>
+      ${undo && undo.at ? `<button class="btn" data-act="undo-load">Annulla l'ultimo caricamento (${stamp(undo.at)})</button>` : ""}
       <button class="btn" data-act="install">${window.GRIMORIO_NATIVE ? "Informazioni sull'app…" : "Installa su iPad e iPhone…"}</button>
       <button class="btn" data-act="toggle-hidden">${UI.showHidden ? "Nascondi" : "Mostra"} gli elementi nascosti</button>
     </div>
     <h3>Salvataggio</h3>
-    <p>Le schede restano solo su questo dispositivo, senza cloud. ${fileInfo} Il ritratto è salvato dentro la scheda.</p>
-    <p>Per tenere ogni personaggio nella sua cartella, salvalo su file: scegli la cartella <i>Grimorio D&amp;D › Personaggi › ${esc(b.name)}</i> (su iPad, dopo «Salva su File»); per riprenderlo usa «Apri una scheda da file». ${window.GRIMORIO_NATIVE ? "Nell'app la memoria è conservata dall'app stessa, senza limiti di spazio." : "Su iPad aggiungi la pagina alla schermata Home, così Safari non ne cancella i dati."}</p>
+    <p>I personaggi restano su questo dispositivo, senza cloud, ritratti compresi. ${fileInfo} Il file salvato con <b>Salva</b> è la tua copia sicura. ${window.GRIMORIO_NATIVE ? "Nell'app la memoria è conservata dall'app stessa, senza limiti di spazio." : "Su iPad aggiungi la pagina alla schermata Home, così Safari non ne cancella i dati."}</p>
     <h3>Sui testi</h3><p>Incantesimi, classi, sottoclassi, talenti e background vengono dal Manuale del Giocatore (2014), dalla Guida del DM, dalla Guida di Xanathar e dal Calderone di Tasha. Le descrizioni sono riassunti delle regole: tocca <b>Modifica</b> per incollare il testo completo del tuo manuale o correggere un nome.</p>
     ${window.GRIMORIO_VERSION ? `<p style="font-size:13px;color:var(--ink-3);margin:12px 0 0">Versione ${esc(window.GRIMORIO_VERSION)}</p>` : ""}
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
@@ -1324,15 +1293,14 @@ function openChars(){
   const cur = book();
   openSheet(`<h2>Personaggi</h2>
     <div class="menu-list">${ids.map(id => { const b = S.books[id], s = subOf(b);
-      return `<button class="char${id === S.active ? " on" : ""}" data-act="char" data-id="${esc(id)}" aria-pressed="${id === S.active}">${portraitHTML(b, "sm")}<span class="c-txt"><span class="c-name">${esc(b.name)}</span><span class="c-meta">${raceName(b) ? esc(raceName(b)) + " · " : ""}${esc(className(b))}${s ? " · " + esc(s.n) : ""} · livello ${b.lvl} · ${b.fileSavedAt ? "file del " + stamp(b.fileSavedAt) : "mai salvato su file"}</span></span></button>`; }).join("")}
+      return `<button class="char${id === S.active ? " on" : ""}" data-act="char" data-id="${esc(id)}" aria-pressed="${id === S.active}">${portraitHTML(b, "sm")}<span class="c-txt"><span class="c-name">${esc(b.name)}</span><span class="c-meta">${raceName(b) ? esc(raceName(b)) + " · " : ""}${esc(className(b))}${s ? " · " + esc(s.n) : ""} · livello ${b.lvl}</span></span></button>`; }).join("")}
       <button class="btn soft" data-act="char-new">＋ Nuovo personaggio</button>
-      <button class="btn soft" data-act="import">Apri una scheda da file…</button>
     </div>
     <h3>Personaggio attivo</h3>
     <div class="form"><label class="wide">Nome<input type="text" id="rn" maxlength="60" value="${esc(cur.name)}"></label></div>
     <div class="sheet-foot" style="justify-content:space-between">
       <button class="btn danger" data-act="char-del">Elimina personaggio</button>
-      <span class="btn-row"><button class="btn" data-act="export">Salva su file…</button><button class="btn primary" data-act="char-rename">Salva nome</button></span>
+      <button class="btn primary" data-act="char-rename">Salva nome</button>
     </div>`);
 }
 function openEdit(id){
@@ -1412,7 +1380,7 @@ const featureItemsRaw = () => withoutEdits(featureItems);
 const featItemsRaw = () => withoutEdits(featItems);
 const bgItemRaw = () => withoutEdits(bgItem);
 function showCopy(payload){
-  openSheet(`<h2>Scheda in formato testo</h2><p>Qui non è possibile salvare direttamente un file: copia questo testo e incollalo in un file o in una nota. Per riaprirlo usa <b>Apri una scheda da file</b> e incollalo.</p>
+  openSheet(`<h2>Scheda in formato testo</h2><p>Qui non è possibile salvare direttamente un file: copia questo testo e incollalo in un file o in una nota. Per riaprirlo salvalo in un file .json e usa <b>Menu › Carica…</b>.</p>
     <textarea id="bk" readonly>${esc(payload)}</textarea>
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button><button class="btn primary" id="copyBk">Copia</button></div>`,
   sh => sh.querySelector("#copyBk").addEventListener("click", () => {
@@ -1420,14 +1388,6 @@ function showCopy(payload){
     if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(() => toast("Copiato"), () => { ta.focus(); ta.select(); toast("Seleziona e copia il testo"); });
     else { ta.focus(); ta.select(); }
   }));
-}
-function openImport(){
-  openSheet(`<h2>Apri una scheda da file</h2><p>Scegli il file <b>.incantesimi.json</b> del personaggio dalla sua cartella in <i>Grimorio D&amp;D › Personaggi</i>, oppure incolla qui il testo della scheda.</p>
-    <textarea id="imp" placeholder='{"app":"libro-incantesimi", …}'></textarea>
-    <p class="err" id="impErr" hidden></p>
-    <div class="sheet-foot" style="justify-content:space-between"><button class="btn primary" id="pickFile">Scegli file…</button>
-      <span class="btn-row"><button class="btn" data-act="sheet-close">Annulla</button><button class="btn" id="doImp">Apri il testo incollato</button></span></div>`,
-  sh => { sh.querySelector("#pickFile").addEventListener("click", pickAndOpen); sh.querySelector("#doImp").addEventListener("click", () => importText(sh.querySelector("#imp").value)); });
 }
 async function pickAndOpen(){
   if (canPickFile() && typeof window.showOpenFilePicker === "function"){
@@ -1442,21 +1402,9 @@ function importText(txt, handle){
   let o = null; try { o = JSON.parse(txt); } catch(e){}
   if (o && o.books && typeof o.books === "object" && !Array.isArray(o.books)){ mergeAll(o, handle); return; }
   const src = o && (o.book || o);
-  if (!src || typeof src !== "object" || (!src.prep && !src.name)){
-    const e = $("#impErr");
-    if (e){ e.textContent = "Il contenuto non sembra una scheda di quest'app: controlla di aver scelto il file giusto o di aver copiato tutto il testo."; e.hidden = false; }
-    else toast("Il file non sembra una scheda di quest'app");
-    return;
-  }
-  const nb = normBook(src), same = Object.keys(S.books).find(k => S.books[k].name === nb.name);
-  if (!same){ finishImport(rid("pg-"), nb, handle); return; }
-  openSheet(`<h2 tabindex="-1" autofocus>«${esc(nb.name)}» è già presente</h2><p>Vuoi sostituire la scheda che hai su questo dispositivo con quella del file, oppure tenerle entrambe?</p>
-    <div class="sheet-foot"><button class="btn" data-act="sheet-close">Annulla</button><button class="btn" id="impNew">Tienile entrambe</button><button class="btn primary" id="impRep">Sostituisci</button></div>`, sh => {
-    sh.querySelector("#impRep").addEventListener("click", () => finishImport(same, nb, handle));
-    sh.querySelector("#impNew").addEventListener("click", () => { nb.name = (nb.name + " (copia)").slice(0, 60); finishImport(rid("pg-"), nb, null); });
-  });
+  if (!src || typeof src !== "object" || (!src.prep && !src.name)){ toast("Il file non sembra un salvataggio del Grimorio"); return; }
+  mergeAll({ books:{ [rid("pg-")]: src } }, null);   // file di un solo personaggio (versioni precedenti)
 }
-function finishImport(id, nb, handle){ S.books[id] = nb; S.active = id; if (handle) S.handles[id] = handle; else delete S.handles[id]; cacheLocal(); localStatus(); closeSheet(); closeDetail(); renderAll(true); toast(`${nb.name}: scheda aperta`); }
 function openImportSpell(){
   const b = book(), L = listLetter(b);
   const others = LETTERS.split("").filter(k => k !== L);
@@ -1804,7 +1752,7 @@ function openInstall(){
       <h3>Su Android</h3>
       <p>Per telefoni e tablet Android c'è l'app da installare: <a href="Grimorio.apk" download>scarica Grimorio.apk</a>, aprilo e conferma l'installazione.</p>
       <h3>Personaggi</h3>
-      <p>I personaggi restano sull'iPad. Per tenerli al sicuro o spostarli su un altro dispositivo usa <b>Menu › Salva la scheda su file</b> e scegli <b>Salva su File</b>, nella cartella del personaggio; per riaprirli usa <b>Apri una scheda da file</b>.</p>
+      <p>I personaggi restano sul dispositivo. Per tenerli al sicuro o spostarli su un altro dispositivo tocca <b>Salva</b> in alto e scegli <b>Salva su File</b> (per esempio iCloud Drive › Grimorio D&amp;D); sull'altro dispositivo usa <b>Menu › Carica…</b>.</p>
       <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
     return;
   }
@@ -1817,7 +1765,7 @@ function openInstall(){
         <li>Sull'iPad apri l'indirizzo in <b>Safari</b> › <b>Condividi</b> › <b>Aggiungi alla schermata Home</b>.</li>
         <li>Da quel momento il Grimorio funziona offline, come un'app.</li>
       </ol>
-      <p>I personaggi si spostano tra PC e iPad con <b>Salva la scheda su file</b> e <b>Apri una scheda da file</b>.</p>
+      <p>I personaggi si spostano tra i dispositivi con <b>Salva</b> e <b>Menu › Carica…</b>.</p>
       <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
     return;
   }
@@ -1941,6 +1889,7 @@ document.addEventListener("click", e => {
     case "menu": openMenu(); break;
     case "save-all": closeSheet(); saveAll(); break;
     case "load-all": closeSheet(); pickAndOpen(); break;
+    case "undo-load": undoLoad(); break;
     case "install": openInstall(); break;
     case "portrait": if (narrow() && !el.closest(".pg-card")) openCard(); else openPortrait(); break;
     case "p-pick": closeSheet(); pickPortrait(); break;
@@ -1959,8 +1908,6 @@ document.addEventListener("click", e => {
         S.active = Object.keys(S.books)[0]; cacheLocal(); localStatus(); closeDetail(); renderAll(true); toast("Personaggio eliminato");
       }); break;
     case "toggle-hidden": UI.showHidden = !UI.showHidden; saveUI(); closeSheet(); renderResults(); toast(UI.showHidden ? "Gli elementi nascosti sono visibili" : "Elementi nascosti di nuovo"); break;
-    case "export": closeSheet(); saveToFile(); break;
-    case "import": closeSheet(); openImport(); break;
     case "sheet-close": closeSheet(); break;
   }
 });
@@ -1999,7 +1946,7 @@ $("#portraitFile").addEventListener("change", e => { const f = e.target.files &&
 $("#importFile").addEventListener("change", e => {
   const f = e.target.files && e.target.files[0]; if (!f) return;
   const r = new FileReader();
-  r.onload = () => { const ta = $("#imp"); if (ta) ta.value = String(r.result); importText(String(r.result)); };
+  r.onload = () => importText(String(r.result));
   r.readAsText(f); e.target.value = "";
 });
 (function(){ const mq = window.matchMedia("(max-width: 899.98px)"), fn = ev => { if (!ev.matches) document.documentElement.classList.remove("detail-open"); };
