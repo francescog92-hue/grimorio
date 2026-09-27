@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "26/09/2026 · 75c503";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "27/09/2026 · 20d7cb";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -281,6 +281,21 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .conc-chip button{border:0;background:transparent;color:inherit;font-weight:800;min-height:34px;padding:0 6px;text-align:left}
 .conc-chip .end{background:var(--on-accent);color:var(--accent);border-radius:999px;padding:0 12px}
 .conc-chip .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;display:inline-block;vertical-align:bottom}
+.conc-chip .turns{background:var(--on-accent);color:var(--accent);border-radius:999px;min-width:44px;height:34px;padding:0 10px;font-variant-numeric:tabular-nums;display:inline-flex;align-items:center;justify-content:center;gap:4px}
+.conc-chip .turns.out{background:#FFC857;color:#1A1E2C}
+.conc-chip .open{display:inline-flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto}
+.conc-chip .turns,.conc-chip .end{white-space:nowrap;flex:none}
+@media (max-width:560px){ .conc-chip{width:100%} .conc-chip .open .lab{display:none} .conc-chip .open .nm{max-width:none;flex:1;min-width:0} }
+.cp-spell{margin:0 0 14px;color:var(--ink-2)}
+.cp-spell b{font-family:var(--display);font-weight:400;font-size:22px;color:var(--ink)}
+.cp-count{display:flex;flex-direction:column;align-items:center;padding:14px 0 18px}
+.cp-num{font-family:var(--body);font-weight:800;font-size:68px;line-height:1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.cp-num.out{color:var(--warn)}
+.cp-lab{color:var(--ink-2);font-weight:700;margin-top:6px;text-align:center}
+.cp-row{display:flex;align-items:center;gap:10px}
+.cp-row .grow{flex:1}
+.cp-row .btn.turn{font-size:17px;padding:14px 18px}
+.cp-more{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 @keyframes concIn{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:none}}
 .d-conc{background:var(--accent-soft);border:2px solid var(--accent);border-radius:12px;padding:12px 14px;margin:14px 0}
 .d-conc h4{margin:0 0 4px;color:var(--accent);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
@@ -461,7 +476,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -480,6 +495,8 @@ function normBook(o){
   if (Array.isArray(o.used)) b.used = Array.from({length:9}, (_, i) => Math.max(0, parseInt(o.used[i], 10) || 0));
   b.pact = Math.max(0, parseInt(o.pact, 10) || 0);
   b.conc = typeof o.conc === "string" ? o.conc : "";
+  b.concMax = clamp(parseInt(o.concMax, 10) || 0, 0, 99999);
+  b.concT = clamp(parseInt(o.concT, 10) || 0, 0, b.concMax);
   if (Array.isArray(o.custom)) b.custom = o.custom.filter(s => s && typeof s.id === "string" && typeof s.n === "string").map(s => Object.assign({}, s));
   if (Array.isArray(o.xcustom)) b.xcustom = o.xcustom.filter(s => s && typeof s.id === "string" && typeof s.n === "string" && (s.kind === "f" || s.kind === "t")).map(s => Object.assign({}, s));
   b.portrait = normPortrait(o.portrait);
@@ -760,9 +777,12 @@ function renderHeader(){
   $("#lvl").textContent = b.lvl;
   // Concentrazione: sempre visibile in testata
   const cs = b.conc ? getSpell(b.conc) : null;
-  $("#concSlot").innerHTML = cs ? `<span class="conc-chip" role="status"><span class="dot" aria-hidden="true"></span>
-      <button data-act="open" data-kind="s" data-id="${esc(cs.id)}" title="Apri l'incantesimo">Concentrazione: <span class="nm">${esc(cs.n)}</span></button>
+  if (cs && !b.concMax){ b.concMax = durationTurns(cs); b.concT = b.concMax; }   // concentrazioni iniziate con versioni precedenti
+  $("#concSlot").innerHTML = cs ? `<span class="conc-chip" role="status">
+      <button class="turns${b.concT ? "" : " out"}" data-act="conc-turn" data-d="-1" aria-label="${b.concT ? `Turno passato: ne restano ${turnsText(b.concT)}` : "Durata finita"}" title="Tocca a ogni turno passato">⏳ ${b.concT}</button>
+      <button class="open" data-act="conc-panel" title="Turni e dettagli della concentrazione"><span class="dot" aria-hidden="true"></span><span class="lab">Concentrazione:</span> <span class="nm">${esc(cs.n)}</span></button>
       <button class="end" data-act="conc-end" aria-label="Termina la concentrazione">Termina</button></span>` : "";
+  const cp = document.querySelector("#sheet .cp"); if (cp) cp.outerHTML = concPanel(b);
   const feats = Object.keys(b.feats).length;
   const secs = [["spells", "Incantesimi", readyCount(b)], ["trait", "Privilegi", null], ["feat", "Talenti", feats]];
   $("#sections").innerHTML = secs.map(([k, label, n]) =>
@@ -1231,10 +1251,43 @@ function togglePrep(id){
   }
   commit(); refresh();
 }
+/* Durata in turni (1 turno = 6 secondi): 1 minuto = 10 turni, 1 ora = 600. */
+function durationTurns(s){
+  const m = String(s.d || "").toLowerCase().match(/(\d+)\s*(round|turn|minut|or[ae]|giorn)/);
+  if (!m) return 10;
+  const n = parseInt(m[1], 10), u = m[2];
+  return n * (u === "round" || u === "turn" ? 1 : u === "minut" ? 10 : u.startsWith("or") ? 600 : 14400);
+}
+const turnsText = n => n === 1 ? "1 turno" : `${n} turni`;
 function startConc(b, s){
   const prev = b.conc && b.conc !== s.id ? getSpell(b.conc) : null;
-  b.conc = s.id;
+  b.conc = s.id; b.concMax = durationTurns(s); b.concT = b.concMax;
   return prev ? `${prev.n} termina: ora ti concentri su ${s.n}` : `Concentrazione su ${s.n}`;
+}
+function concPanel(b){
+  const s = b.conc ? getSpell(b.conc) : null;
+  if (!s) return `<div class="cp"><p>Non stai mantenendo la concentrazione su nessun incantesimo.</p></div>`;
+  const t = b.concT, max = b.concMax;
+  return `<div class="cp">
+    <p class="cp-spell"><b>${esc(s.n)}</b><br>Durata: ${esc(s.d)} · ${turnsText(max)}</p>
+    <div class="cp-count" aria-live="polite"><span class="cp-num${t ? "" : " out"}">${t}</span>
+      <span class="cp-lab">${t ? `${t === 1 ? "turno rimasto" : "turni rimasti"}${t > 10 ? ` · circa ${Math.ceil(t / 10)} min` : ""}` : "La durata è finita: termina la concentrazione"}</span></div>
+    <div class="cp-row">
+      <button class="btn${t ? " danger" : " primary"}" data-act="conc-end">Termina</button>
+      <span class="grow"></span>
+      <button class="btn" data-act="conc-turn" data-d="1" aria-label="Aggiungi un turno">+1</button>
+      <button class="btn primary turn" data-act="conc-turn" data-d="-1" ${t ? "" : "disabled"}>Turno passato −1</button>
+    </div>
+    <div class="cp-more">
+      <button class="btn soft" data-act="conc-reset">Ricomincia da ${turnsText(max)}</button>
+      <button class="btn soft" data-act="conc-open">Apri l'incantesimo</button>
+    </div>
+    <p class="note" style="margin:14px 0 0">Se subisci danni: tiro salvezza su Costituzione, CD 10 o metà dei danni se più alta.</p>
+  </div>`;
+}
+function openConcPanel(){
+  openSheet(`<h2 tabindex="-1" autofocus>Concentrazione</h2>${concPanel(book())}
+    <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
 }
 function cast(id, kind, lv){
   const b = book(), s = getSpell(id); if (!s) return; lv = Number(lv);
@@ -1290,11 +1343,10 @@ function openMenu(){
   const fileInfo = st && st.at ? `Ultimo salvataggio su file: <b>${stamp(st.at)}</b>${st.sig !== allSig() ? " (ci sono modifiche più recenti)" : ""}.` : "Non hai ancora salvato su file.";
   openSheet(`<h2>Menu</h2>
     <div class="menu-pair">
-      <button class="btn primary big" data-act="save-all">Salva tutto</button>
-      <button class="btn big" data-act="load-all">Carica…</button>
+      <button class="btn primary big" data-act="load-all">Carica…</button>
+      <button class="btn big" data-act="save-new">Crea nuovo salvataggio…</button>
     </div>
-    <div class="menu-list" style="margin-bottom:10px"><button class="btn" data-act="save-new">Crea nuovo salvataggio…</button></div>
-    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">«Salva» mette <b>tutti i personaggi</b> in un solo file e ${lsGet(ALL_KEY) && lsGet(ALL_KEY).at ? `sovrascrive sempre l'ultimo salvataggio, «${esc(saveName())}»` : "la prima volta ti chiede dove metterlo (per esempio iCloud Drive o Google Drive › Grimorio D&amp;D)"}. ${IS_IOS && !window.GRIMORIO_NATIVE ? "Su iPad e iPhone Apple chiede ogni volta una conferma: <b>Salva su File</b>, poi <b>Salva</b> e <b>Sostituisci</b>." : ""} «Crea nuovo salvataggio» fa un file a parte, con data e ora nel nome, che da quel momento diventa quello di «Salva». Sull'altro dispositivo usa <b>Carica…</b>: i personaggi del file prendono il posto di quelli sul dispositivo.</p>
+    <p style="font-size:14px;color:var(--ink-2);margin:0 0 12px">Il pulsante <b>Salva</b> in alto mette <b>tutti i personaggi</b> in un solo file e ${lsGet(ALL_KEY) && lsGet(ALL_KEY).at ? `sovrascrive sempre l'ultimo salvataggio, «${esc(saveName())}»` : "la prima volta ti chiede dove metterlo (per esempio iCloud Drive o Google Drive › Grimorio D&amp;D)"}. ${IS_IOS && !window.GRIMORIO_NATIVE ? "Su iPad e iPhone Apple chiede ogni volta una conferma: <b>Salva su File</b>, poi <b>Salva</b> e <b>Sostituisci</b>." : ""} «Crea nuovo salvataggio» fa un file a parte, con data e ora nel nome, che da quel momento diventa quello di «Salva». Sull'altro dispositivo usa <b>Carica…</b>: i personaggi del file prendono il posto di quelli sul dispositivo.</p>
     <div class="menu-list">
       <button class="btn" data-act="chars">Personaggi…</button>
       ${undo && undo.at ? `<button class="btn" data-act="undo-load">Annulla l'ultimo caricamento (${stamp(undo.at)})</button>` : ""}
@@ -1868,7 +1920,19 @@ document.addEventListener("click", e => {
     case "cast": cast(id, el.dataset.kind, el.dataset.lv); break;
     case "ritual": { const s = getSpell(id); if (!s) break; toast((s.f || "").includes("c") ? startConc(b, s) + " · lanciato come rituale" : `${s.n}: lanciato come rituale, nessuno slot speso`); commit(); refresh(); break; }
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
-    case "conc-end": { const s = getSpell(b.conc); b.conc = ""; commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
+    case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
+    case "conc-panel": openConcPanel(); break;
+    case "conc-open": closeSheet(); if (b.conc) openDetail("s", b.conc); break;
+    case "conc-turn": {
+      if (!b.conc) break;
+      const d = parseInt(el.dataset.d, 10) || 0;
+      b.concT = clamp(b.concT + d, 0, Math.max(b.concMax, b.concT + d));
+      if (b.concT > b.concMax) b.concMax = b.concT;
+      commit(); renderHeader();
+      if (!el.closest("#sheet")) toast(b.concT ? `Turno passato: ${b.concT === 1 ? "resta 1 turno" : `restano ${b.concT} turni`}` : "La durata è finita: termina la concentrazione");
+      break;
+    }
+    case "conc-reset": b.concT = b.concMax; commit(); renderHeader(); break;
     case "rest": rest(el.dataset.v); break;
     case "goto-spell": openDetail("s", id); break;
     case "edit": openEdit(id); break;
