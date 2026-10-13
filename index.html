@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "27/09/2026 · 20d7cb";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "13/10/2026 · cd3494";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -270,6 +270,7 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .sec{height:46px;padding:0 18px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);font-weight:800;font-size:16px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px}
 .sec[aria-selected="true"]{background:var(--pill-dark);border-color:var(--pill-dark);color:#FFFFFF}
 .sec .n{font-weight:600;font-size:14px;opacity:.75;font-variant-numeric:tabular-nums}
+@media (max-width:560px){ .sections{flex-wrap:nowrap;gap:4px} .sec{flex:1 1 0;min-width:0;justify-content:center;padding:0 6px;font-size:15px;gap:4px;height:42px} .sec .n{font-size:12px} }
 .subtabs{display:flex;gap:4px;padding:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;width:max-content;max-width:100%;overflow-x:auto;margin-bottom:14px}
 .caster{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
 .caster .stats{margin-left:0}
@@ -296,6 +297,60 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .cp-row .grow{flex:1}
 .cp-row .btn.turn{font-size:17px;padding:14px 18px}
 .cp-more{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.sh{display:flex;flex-direction:column;gap:6px;padding-bottom:24px}
+.sh-h{font-family:var(--display);font-weight:400;font-size:24px;margin:18px 0 6px}
+.sh-h:first-child{margin-top:4px}
+.sh-note{margin:0 0 8px;color:var(--ink-2);font-size:14px}
+.sh-top{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.sh-box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.sh-box .lab{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.sh-box b{font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums}
+.sh-box.hp{grid-column:span 2}
+.sh-hp{display:flex;align-items:center;gap:8px}
+.sh-hp .cur{font-size:30px;font-weight:800;width:3.2em;text-align:center}
+.sh-hp .of{color:var(--ink-3);font-weight:700}
+.sh-hp .small{width:3.6em}
+.sh-num,.sh-box input,.ab-s input,.sh-coin input,.sh-am input{font:inherit;font-weight:700;background:var(--surface-2);color:var(--ink);border:1px solid var(--line-2);border-radius:8px;height:40px;padding:0 6px;min-width:0;font-variant-numeric:tabular-nums}
+.sh-box input{width:100%}
+.sh input[type=number]{-moz-appearance:textfield;text-align:center}
+.sh input[type=number]::-webkit-inner-spin-button,.sh input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.sh .pm{width:40px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-size:20px;font-weight:800;flex:none;cursor:pointer}
+.sh-abs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.ab-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.ab-card.cast{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.ab-n{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.ab-n small{color:var(--accent);letter-spacing:0;text-transform:none;font-weight:700}
+.ab-m{font-size:36px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+.ab-s{display:flex;align-items:center;gap:6px}
+.ab-s input{width:3.2em;height:40px}
+.pd{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink-3);flex:none;display:inline-block}
+.on>.pd,.p>.pd{background:var(--accent);border-color:var(--accent)}
+.e>.pd{background:var(--star);border-color:var(--star);border-radius:3px;transform:rotate(45deg)}
+.ts{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);border-radius:999px;padding:6px 12px;font:inherit;font-weight:700;cursor:pointer}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ts.on{border-color:var(--accent);color:var(--accent)}
+.sh-skills{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:6px}
+.sk{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;padding:9px 12px;font:inherit;cursor:pointer}
+.sk .nm{flex:1;min-width:0}
+.sk small{color:var(--ink-3);font-weight:700;margin-left:4px}
+.sk b{font-variant-numeric:tabular-nums;font-size:17px}
+.sk.p,.sk.e{border-color:var(--accent)}
+.sh-coins{display:flex;flex-direction:column;gap:6px}
+.sh-coin{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 8px 6px 12px}
+.sh-coin .cn{flex:1;min-width:0;font-weight:700}
+.sh-coin .cn small{color:var(--ink-3);margin-left:4px}
+.sh-coin .dot{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:-2px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
+.sh-coin input{width:6em;text-align:center}
+.sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
+.sh-am{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.am-row{display:flex;align-items:center;gap:8px}
+.am-row .am-n{flex:1;min-width:0;height:40px}
+.am-row .am-q{width:4.2em;text-align:center;font-size:20px}
+.am-del{width:40px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:none;color:var(--danger);font:inherit;font-weight:800;flex:none;cursor:pointer}
+.am-use{font-size:16px;padding:10px 16px;white-space:nowrap}
+.am-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink-2);font-size:14px}
+.am-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+@media (max-width:560px){ .sh-box.hp{grid-column:1 / -1} .sh-abs{grid-template-columns:repeat(2,1fr)} .am-row{flex-wrap:wrap} .am-row .am-n{flex-basis:calc(100% - 48px)} .am-use{flex:1} }
 @keyframes concIn{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:none}}
 .d-conc{background:var(--accent-soft);border:2px solid var(--accent);border-radius:12px;padding:12px 14px;margin:14px 0}
 .d-conc h4{margin:0 0 4px;color:var(--accent);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
@@ -476,7 +531,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0}, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -497,6 +552,17 @@ function normBook(o){
   b.conc = typeof o.conc === "string" ? o.conc : "";
   b.concMax = clamp(parseInt(o.concMax, 10) || 0, 0, 99999);
   b.concT = clamp(parseInt(o.concT, 10) || 0, 0, b.concMax);
+  const num = (v, lo, hi, d) => { const n = parseInt(v, 10); return Number.isFinite(n) ? clamp(n, lo, hi) : d; };
+  for (const [k] of SH_ABS) b.ab[k] = num(o.ab && o.ab[k], 1, 30, 10);
+  if (!o.ab){ const ck = castKey(b); if (ck) b.ab[ck] = b.score; }      // schede precedenti: la caratteristica da incantatore c'era già
+  if (o.saves && typeof o.saves === "object"){ b.saves = {}; for (const [k] of SH_ABS) if (o.saves[k]) b.saves[k] = 1; }
+  if (o.skills && typeof o.skills === "object") for (const [k] of SH_SKILLS) if (o.skills[k] === 1 || o.skills[k] === 2) b.skills[k] = o.skills[k];
+  if (o.hp && typeof o.hp === "object") b.hp = { max:num(o.hp.max, 0, 9999, 0), cur:num(o.hp.cur, -9999, 9999, 0), tmp:num(o.hp.tmp, 0, 9999, 0) };
+  b.ac = num(o.ac, 0, 99, 10);
+  b.speed = typeof o.speed === "string" ? o.speed.slice(0, 24) : "";
+  if (o.coins && typeof o.coins === "object") for (const [k] of SH_COINS) b.coins[k] = num(o.coins[k], 0, 99999999, 0);
+  if (Array.isArray(o.ammo)) b.ammo = o.ammo.filter(a => a && typeof a.n === "string").slice(0, 20)
+    .map(a => ({ id:typeof a.id === "string" ? a.id : rid("am-"), n:a.n.slice(0, 40), q:num(a.q, 0, 99999, 0), spent:num(a.spent, 0, 99999, 0) }));
   if (Array.isArray(o.custom)) b.custom = o.custom.filter(s => s && typeof s.id === "string" && typeof s.n === "string").map(s => Object.assign({}, s));
   if (Array.isArray(o.xcustom)) b.xcustom = o.xcustom.filter(s => s && typeof s.id === "string" && typeof s.n === "string" && (s.kind === "f" || s.kind === "t")).map(s => Object.assign({}, s));
   b.portrait = normPortrait(o.portrait);
@@ -505,6 +571,25 @@ function normBook(o){
   return b;
 }
 const book = () => S.books[S.active];
+/* ---------- Scheda: caratteristiche, abilità, monete, munizioni ---------- */
+const SH_ABS = [["for", "Forza"], ["des", "Destrezza"], ["cos", "Costituzione"], ["int", "Intelligenza"], ["sag", "Saggezza"], ["car", "Carisma"]];
+const SH_ABBR = { for:"FOR", des:"DES", cos:"COS", int:"INT", sag:"SAG", car:"CAR" };
+const SH_SKILLS = [["acrobazia", "Acrobazia", "des"], ["animali", "Addestrare Animali", "sag"], ["arcano", "Arcano", "int"], ["atletica", "Atletica", "for"],
+  ["furtivita", "Furtività", "des"], ["indagare", "Indagare", "int"], ["inganno", "Inganno", "car"], ["intimidire", "Intimidire", "car"],
+  ["intrattenere", "Intrattenere", "car"], ["intuizione", "Intuizione", "sag"], ["medicina", "Medicina", "sag"], ["natura", "Natura", "int"],
+  ["percezione", "Percezione", "sag"], ["persuasione", "Persuasione", "car"], ["rapidita", "Rapidità di Mano", "des"], ["religione", "Religione", "int"],
+  ["sopravvivenza", "Sopravvivenza", "sag"], ["storia", "Storia", "int"]];
+const SH_CLASS_SAVES = { bar:["for","cos"], brd:["des","car"], chr:["sag","car"], dru:["int","sag"], gue:["for","cos"], mon:["for","des"], pal:["sag","car"],
+  ran:["for","des"], lad:["des","int"], str:["cos","car"], war:["sag","car"], mag:["int","sag"], art:["cos","int"] };
+const SH_COINS = [["mp", "Platino", 10, "#D9E1EA"], ["mo", "Oro", 1, "#E2B33C"], ["me", "Electrum", 0.5, "#CDBB7A"], ["ma", "Argento", 0.1, "#BFC5CC"], ["mr", "Rame", 0.01, "#B87333"]];
+const SH_AMMO = ["Frecce", "Dardi", "Proiettili per fionda", "Aghi per cerbottana"];
+const SH_AB_KEY = { Forza:"for", Destrezza:"des", Costituzione:"cos", Intelligenza:"int", Saggezza:"sag", Carisma:"car" };
+const castKey = b => { const c = castCfg(b); return c ? SH_AB_KEY[c.ab] || null : null; };
+const shMod = v => Math.floor((v - 10) / 2);
+const shSign = n => (n < 0 ? "−" : "+") + Math.abs(n);
+const shProf = b => 2 + Math.floor((b.lvl - 1) / 4);
+const shSaves = b => b.saves || Object.fromEntries((SH_CLASS_SAVES[b.cls] || []).map(k => [k, 1]));
+const shSkill = (b, k, ab) => shMod(b.ab[ab]) + (b.skills[k] || 0) * shProf(b);
 const abMod = b => Math.floor((b.score - 10) / 2);
 const prof = b => 2 + Math.floor((b.lvl - 1) / 4);
 const clsOf = b => CLASS_BY[b.cls] || null;
@@ -637,6 +722,7 @@ function setStatus(txt, kind){ const el = $("#sync"); el.className = "sync" + (k
 function localStatus(){ const h = S.handles[S.active]; if (quotaWarned){ setStatus("Memoria del browser piena: salva la scheda su file", "err"); return; } setStatus(h ? `Salvato sul dispositivo e in ${h.name}` : "Salvato su questo dispositivo", "ok"); }
 function commit(){
   const b = book(); if (!b) return;
+  const ck = castKey(b); if (ck) b.score = b.ab[ck];
   b.updated = Date.now(); cacheLocal(); localStatus();
   const id = S.active;
   if (S.handles[id]){ clearTimeout(S.fileTimer); setStatus("Salvataggio nel file…", "busy"); S.fileTimer = setTimeout(() => writeFile(id), 700); }
@@ -784,7 +870,7 @@ function renderHeader(){
       <button class="end" data-act="conc-end" aria-label="Termina la concentrazione">Termina</button></span>` : "";
   const cp = document.querySelector("#sheet .cp"); if (cp) cp.outerHTML = concPanel(b);
   const feats = Object.keys(b.feats).length;
-  const secs = [["spells", "Incantesimi", readyCount(b)], ["trait", "Privilegi", null], ["feat", "Talenti", feats]];
+  const secs = [["sheet", "Scheda", null], ["spells", "Incantesimi", readyCount(b)], ["trait", "Privilegi", null], ["feat", "Talenti", feats]];
   $("#sections").innerHTML = secs.map(([k, label, n]) =>
     `<button class="sec" role="tab" aria-selected="${UI.section === k}" data-act="section" data-v="${k}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`).join("");
 }
@@ -811,6 +897,7 @@ function renderTop(force){
     return;
   }
   if (UI.section === "trait"){ topKey = "trait"; el.innerHTML = traitTop(b); return; }
+  if (UI.section === "sheet"){ topKey = "sheet"; el.innerHTML = sheetHTML(b); return; }
   const key = "feat:" + UI.tTab;
   if (force || topKey !== key || !$("#tq")){
     topKey = key;
@@ -974,6 +1061,7 @@ function renderResults(){
   const out = $("#results"), b = book();
   if (UI.section === "spells") return renderSpellResults(out, b);
   if (UI.section === "trait") return renderTraitResults(out, b);
+  if (UI.section === "sheet"){ out.innerHTML = ""; return; }
   return renderFeatResults(out, b);
 }
 function renderSpellResults(out, b){
@@ -1058,7 +1146,7 @@ function castOptions(s, b){
   return opts;
 }
 const closeBtn = pos => `<button class="btn d-close${pos === "bottom" ? " bottom" : ""}" data-act="close-detail">← Torna all'elenco</button>`;
-function selKey(){ return UI.section === "spells" ? UI.selS : UI.section === "trait" ? UI.selF : UI.selT; }
+function selKey(){ return UI.section === "sheet" ? null : UI.section === "spells" ? UI.selS : UI.section === "trait" ? UI.selF : UI.selT; }
 let cardOpen = false;
 /* Il personaggio in grande: nome, specie · classe · livello e ritratto con la sua cornice. */
 function pgCard(b){
@@ -1081,9 +1169,10 @@ function renderDetail(){
   if (key){ html = UI.section === "spells" ? spellDetail(key) : entryDetail(key); if (html == null) setSel(null); }
   if (html == null){
     pane.classList.add("empty"); document.documentElement.classList.remove("detail-open");
-    pane.innerHTML = `<div class="detail d-empty">${pgCard(book())}<h3 class="d-hint">${UI.section === "spells" ? "Scegli un incantesimo" : UI.section === "trait" ? "Scegli un privilegio" : "Scegli un talento"}</h3>
-      <p style="margin:0;color:var(--ink-2)">Tocca un nome nell'elenco per leggerne la descrizione completa.</p>
+    pane.innerHTML = `<div class="detail d-empty">${pgCard(book())}<h3 class="d-hint">${UI.section === "sheet" ? "La scheda" : UI.section === "spells" ? "Scegli un incantesimo" : UI.section === "trait" ? "Scegli un privilegio" : "Scegli un talento"}</h3>
+      ${UI.section === "sheet" ? "" : `<p style="margin:0;color:var(--ink-2)">Tocca un nome nell'elenco per leggerne la descrizione completa.</p>`}
       <ul>${UI.section === "spells" ? `<li><b>✓</b> prepara o impara l'incantesimo${castCfg(book()) && castCfg(book()).mode === "book" ? "; <b>★</b> lo copia nel libro" : ""}.</li><li>Nella scheda puoi <b>lanciarlo</b> spendendo uno slot, <b>modificarlo</b> o <b>nasconderlo</b>.</li><li><b>C</b> e <b>R</b> indicano concentrazione e rituale.</li>`
+        : UI.section === "sheet" ? `<li>Tocca <b>−</b> e <b>+</b> o scrivi i numeri: i modificatori si calcolano da soli.</li><li>Tocca un'abilità per segnare la <b>competenza</b> (●), di nuovo per la <b>maestria</b> (◆).</li><li>Nelle munizioni, <b>Tira −1</b> a ogni colpo; a fine combattimento <b>Recupera metà</b>.</li>`
         : UI.section === "trait" ? `<li>I privilegi seguono classe, sottoclasse e livello scelti in alto.</li><li>Nella scheda di un privilegio puoi impostare gli <b>usi</b> (ad esempio 3 al giorno) e segnarli con le gemme.</li><li>I pulsanti <b>Riposo</b> li ripristinano.</li>`
         : `<li><b>✓</b> aggiunge il talento al personaggio.</li><li>Puoi modificarne il testo, impostarne gli usi o crearne uno nuovo.</li>`}</ul></div>`;
     return;
@@ -1200,7 +1289,7 @@ function entryDetail(key){
 
 /* ---------- Apertura e chiusura della scheda (su iPad verticale diventa una pagina) ---------- */
 let listScroll = 0;
-function setSel(v){ if (UI.section === "spells") UI.selS = v; else if (UI.section === "trait") UI.selF = v; else UI.selT = v; saveUI(); }
+function setSel(v){ if (UI.section === "sheet") return; if (UI.section === "spells") UI.selS = v; else if (UI.section === "trait") UI.selF = v; else UI.selT = v; saveUI(); }
 function openCard(){
   if (!document.documentElement.classList.contains("detail-open")) listScroll = window.scrollY;
   cardOpen = true; renderDetail();
@@ -1284,6 +1373,71 @@ function concPanel(b){
     </div>
     <p class="note" style="margin:14px 0 0">Se subisci danni: tiro salvezza su Costituzione, CD 10 o metà dei danni se più alta.</p>
   </div>`;
+}
+function sheetHTML(b){
+  const pb = shProf(b), saves = shSaves(b), ck = castKey(b), r = raceOf(b), asi = raceAsi(b);
+  const perc = 10 + shSkill(b, "percezione", "sag");
+  const num = (f, v, lab, cls) => `<input class="${cls || ""}" type="number" inputmode="numeric" data-f="${f}" value="${v}" aria-label="${lab}">`;
+  const total = SH_COINS.reduce((t, [k, , v]) => t + b.coins[k] * v, 0);
+  return `<div class="sh">
+    <div class="sh-top">
+      <div class="sh-box hp"><span class="lab">Punti ferita</span>
+        <div class="sh-hp"><button class="pm" data-act="sh-hp" data-d="-1" aria-label="Perdi 1 punto ferita">−</button>${num("hp.cur", b.hp.cur, "Punti ferita attuali", "cur")}<button class="pm" data-act="sh-hp" data-d="1" aria-label="Recupera 1 punto ferita">+</button>
+          <span class="of">su</span>${num("hp.max", b.hp.max, "Punti ferita massimi", "small")}</div>
+        <div class="sh-hp"><span class="of">Temporanei</span>${num("hp.tmp", b.hp.tmp, "Punti ferita temporanei", "small")}</div></div>
+      <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}</div>
+      <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shMod(b.ab.des))}</b></div>
+      <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(r ? r.speed : "9 m")}" aria-label="Velocità"></div>
+      <div class="sh-box"><span class="lab">Competenza</span><b>${shSign(pb)}</b></div>
+      <div class="sh-box"><span class="lab">Percezione passiva</span><b>${perc}</b></div>
+    </div>
+
+    <h3 class="sh-h">Caratteristiche</h3>
+    ${asi ? `<p class="sh-note">Bonus della specie (${esc(raceName(b))}): ${esc(asi)}. Inseriscili nei punteggi.</p>` : ""}
+    <div class="sh-abs">${SH_ABS.map(([k, n]) => `<div class="ab-card${k === ck ? " cast" : ""}">
+      <div class="ab-n">${n}${k === ck ? ` <small>· incantesimi</small>` : ""}</div>
+      <div class="ab-m">${shSign(shMod(b.ab[k]))}</div>
+      <div class="ab-s"><button class="pm" data-act="sh-ab" data-k="${k}" data-d="-1" aria-label="Diminuisci ${n}">−</button>${num("ab." + k, b.ab[k], "Punteggio di " + n)}<button class="pm" data-act="sh-ab" data-k="${k}" data-d="1" aria-label="Aumenta ${n}">+</button></div>
+      <button class="ts${saves[k] ? " on" : ""}" data-act="sh-save" data-k="${k}" aria-pressed="${!!saves[k]}"><span class="pd" aria-hidden="true"></span><span aria-hidden="true">TS</span><span class="sr">Tiro salvezza</span> ${shSign(shMod(b.ab[k]) + (saves[k] ? pb : 0))}</button>
+    </div>`).join("")}</div>
+
+    <h3 class="sh-h">Abilità</h3>
+    <p class="sh-note">Tocca un'abilità: competenza (●), poi maestria (◆), poi niente. Il pallino dei <b>TS</b> segna la competenza nei tiri salvezza.</p>
+    <div class="sh-skills">${SH_SKILLS.map(([k, n, a]) => { const l = b.skills[k] || 0;
+      return `<button class="sk${l === 1 ? " p" : l === 2 ? " e" : ""}" data-act="sh-skill" data-k="${k}" aria-label="${n}: ${l === 2 ? "maestria" : l === 1 ? "competenza" : "nessuna competenza"}"><span class="pd" aria-hidden="true"></span><span class="nm">${n}<small>${SH_ABBR[a]}</small></span><b>${shSign(shSkill(b, k, a))}</b></button>`; }).join("")}</div>
+
+    <h3 class="sh-h">Borsa</h3>
+    <div class="sh-coins">${SH_COINS.map(([k, n, , c]) => `<div class="sh-coin"><span class="cn"><span class="dot" style="background:${c}" aria-hidden="true"></span>${n}<small>${k}</small></span>
+      <button class="pm" data-act="sh-coin" data-k="${k}" data-d="-1" aria-label="Togli 1 moneta di ${n.toLowerCase()}">−</button>${num("coin." + k, b.coins[k], "Monete di " + n.toLowerCase())}<button class="pm" data-act="sh-coin" data-k="${k}" data-d="1" aria-label="Aggiungi 1 moneta di ${n.toLowerCase()}">+</button></div>`).join("")}</div>
+    <p class="sh-total">In tutto: ${total.toLocaleString("it-IT", { maximumFractionDigits:2 })} monete d'oro</p>
+
+    <h3 class="sh-h">Munizioni</h3>
+    ${b.ammo.length ? "" : `<p class="sh-note">Aggiungi le munizioni che usi: a ogni colpo tocca <b>Tira −1</b>; a fine combattimento <b>Recupera metà</b> riprende la metà di quelle tirate.</p>`}
+    <div class="sh-coins">${b.ammo.map((a, i) => `<div class="sh-am">
+      <div class="am-row">
+        <button class="am-del" data-act="sh-am-del" data-i="${i}" aria-label="Elimina ${esc(a.n)}">✕</button>
+        <input class="am-n" type="text" data-f="ammo.n.${i}" value="${esc(a.n)}" aria-label="Nome delle munizioni">
+        ${num("ammo.q." + i, a.q, "Quantità di " + a.n, "am-q")}
+        <button class="pm" data-act="sh-am" data-i="${i}" data-d="1" aria-label="Aggiungi 1">+</button>
+        <button class="btn primary am-use" data-act="sh-am" data-i="${i}" data-d="-1" ${a.q ? "" : "disabled"}>Tira −1</button>
+      </div>
+      ${a.spent ? `<div class="am-foot">Tirate in questo combattimento: <b>${a.spent}</b>
+        <button class="btn soft" data-act="sh-am-rec" data-i="${i}">Recupera metà (${Math.floor(a.spent / 2)})</button>
+        <button class="btn" data-act="sh-am-zero" data-i="${i}">Azzera</button></div>` : ""}
+    </div>`).join("")}</div>
+    <div class="am-add">${SH_AMMO.map(n => `<button class="btn soft" data-act="sh-am-new" data-n="${esc(n)}">＋ ${n}</button>`).join("")}<button class="btn" data-act="sh-am-new" data-n="">＋ Altro…</button></div>
+  </div>`;
+}
+function renderSheet(){ if (UI.section === "sheet"){ const y = window.scrollY; renderTop(true); window.scrollTo(0, y); } }
+function setSheetField(b, f, v){
+  const n = parseInt(v, 10), part = f.split(".");
+  if (part[0] === "ab") b.ab[part[1]] = clamp(Number.isFinite(n) ? n : 10, 1, 30);
+  else if (part[0] === "hp") b.hp[part[1]] = clamp(Number.isFinite(n) ? n : 0, part[1] === "cur" ? -9999 : 0, 9999);
+  else if (f === "ac") b.ac = clamp(Number.isFinite(n) ? n : 10, 0, 99);
+  else if (f === "speed") b.speed = String(v).slice(0, 24);
+  else if (part[0] === "coin") b.coins[part[1]] = clamp(Number.isFinite(n) ? n : 0, 0, 99999999);
+  else if (part[0] === "ammo"){ const a = b.ammo[+part[2]]; if (!a) return;
+    if (part[1] === "n") a.n = String(v).trim().slice(0, 40) || a.n; else a.q = clamp(Number.isFinite(n) ? n : 0, 0, 99999); }
 }
 function openConcPanel(){
   openSheet(`<h2 tabindex="-1" autofocus>Concentrazione</h2>${concPanel(book())}
@@ -1905,7 +2059,8 @@ document.addEventListener("click", e => {
     case "ftoggle": UI[el.dataset.k] = !UI[el.dataset.k]; saveUI(); renderTop(true); renderResults(); break;
     case "step": {
       const k = el.dataset.k, d = Number(el.dataset.d);
-      if (k === "lvl") b.lvl = clamp(b.lvl + d, 1, 20); else b.score = clamp(b.score + d, 1, 30);
+      if (k === "lvl") b.lvl = clamp(b.lvl + d, 1, 20);
+      else { const ck = castKey(b); if (ck) b.ab[ck] = clamp(b.ab[ck] + d, 1, 30); else b.score = clamp(b.score + d, 1, 30); }
       if (k === "lvl"){ const tot = slotTotals(b); b.used = b.used.map((u, i) => Math.min(u, tot[i])); b.pact = Math.min(b.pact, pactInfo(b).n); }
       commit(); refresh(); if (UI.section === "spells" && UI.tab !== "compendio") buildSubTop(); break;
     }
@@ -1922,6 +2077,20 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "sh-ab": { const k = el.dataset.k; b.ab[k] = clamp(b.ab[k] + Number(el.dataset.d), 1, 30); commit(); renderHeader(); renderSheet(); break; }
+    case "sh-save": { const sv = Object.assign({}, shSaves(b)); if (sv[el.dataset.k]) delete sv[el.dataset.k]; else sv[el.dataset.k] = 1; b.saves = sv; commit(); renderSheet(); break; }
+    case "sh-skill": { const k = el.dataset.k, l = ((b.skills[k] || 0) + 1) % 3; if (l) b.skills[k] = l; else delete b.skills[k]; commit(); renderSheet(); break; }
+    case "sh-hp": b.hp.cur = clamp(b.hp.cur + Number(el.dataset.d), -9999, b.hp.max > 0 ? Math.max(b.hp.max, b.hp.cur) : 9999); commit(); renderSheet(); break;
+    case "sh-coin": { const k = el.dataset.k; b.coins[k] = Math.max(0, b.coins[k] + Number(el.dataset.d)); commit(); renderSheet(); break; }
+    case "sh-am": { const a = b.ammo[+el.dataset.i]; if (!a) break; const d = Number(el.dataset.d);
+      if (d < 0){ if (!a.q) break; a.q--; a.spent++; } else a.q++;
+      commit(); renderSheet(); if (d < 0) toast(`${a.n}: ne restano ${a.q}`); break; }
+    case "sh-am-rec": { const a = b.ammo[+el.dataset.i]; if (!a) break; const r = Math.floor(a.spent / 2); a.q += r; a.spent = 0; commit(); renderSheet(); toast(`${a.n}: recuperate ${r}, ora ne hai ${a.q}`); break; }
+    case "sh-am-zero": { const a = b.ammo[+el.dataset.i]; if (!a) break; a.spent = 0; commit(); renderSheet(); break; }
+    case "sh-am-new": { if (b.ammo.length >= 20) break; b.ammo.push({ id:rid("am-"), n:el.dataset.n || "Munizioni", q:el.dataset.n ? 20 : 0, spent:0 }); commit(); renderSheet();
+      if (!el.dataset.n){ const ins = document.querySelectorAll(".am-n"); const last = ins[ins.length - 1]; if (last){ last.focus(); last.select(); } } break; }
+    case "sh-am-del": { const i = +el.dataset.i, a = b.ammo[i]; if (!a) break;
+      confirmSheet(`Eliminare «${a.n}»?`, "Il contatore di queste munizioni verrà tolto dalla scheda.", "Elimina", () => { b.ammo.splice(i, 1); commit(); renderSheet(); }); break; }
     case "conc-open": closeSheet(); if (b.conc) openDetail("s", b.conc); break;
     case "conc-turn": {
       if (!b.conc) break;
@@ -2018,6 +2187,7 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target;
+  if (t.dataset && t.dataset.f && t.closest(".sh")){ const b = book(); setSheetField(b, t.dataset.f, t.value); commit(); renderHeader(); renderSheet(); return; }
   if (t.id === "fSch"){ UI.sch = t.value; saveUI(); renderResults(); }
   if (t.id === "fSrc"){ UI.src = t.value; saveUI(); renderResults(); }
   if (t.id === "tSrc"){ UI.tSrc = t.value; saveUI(); renderResults(); }
@@ -2048,7 +2218,7 @@ if (cache && cache.books && typeof cache.books === "object"){
 }
 if (!Object.keys(S.books).length) S.books.principale = newBook();
 if (!S.books[S.active]) S.active = Object.keys(S.books)[0];
-if (!["spells","trait","feat"].includes(UI.section)) UI.section = "spells";
+if (!["sheet","spells","trait","feat"].includes(UI.section)) UI.section = "spells";
 renderAll(true);
 localStatus();
 updateSaveBtn();
