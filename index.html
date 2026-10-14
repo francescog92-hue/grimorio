@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "13/10/2026 · 4a9479";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · bd7cb6";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -380,26 +380,41 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .hp-chip .h{color:#D64545;font-size:17px}
 .hp-chip .t{color:var(--accent);font-weight:800;font-size:14px}
 .hp-chip.down{background:#D64545;color:#fff}.hp-chip.down .h{color:#fff}
-.hpv{display:flex;flex-direction:column;align-items:center;padding:6px 0 14px;text-align:center}
-.hpv .big{font-size:60px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
-.hpv .big small{font-size:28px;color:var(--ink-3);font-weight:700}
-.hpv .tmp{color:var(--accent);font-weight:800;margin-top:8px;font-size:18px}
-.hpv .state{color:var(--danger);font-weight:800;margin-top:8px}
-.hp-amt{display:flex;align-items:center;gap:8px;justify-content:center;margin-bottom:10px}
-.hp-amt input{width:4.5em;height:56px;font:inherit;font-size:30px;font-weight:800;text-align:center;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);-moz-appearance:textfield}
-.hp-amt input::-webkit-inner-spin-button,.hp-amt input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
-.hp-amt .pm2{width:48px;height:48px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-size:24px;font-weight:800;cursor:pointer}
-.hp-q{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
-.hp-q .btn{min-width:52px}
-.hp-row{display:flex;gap:12px}
-.hp-row .btn{flex:1;font-size:19px;padding:15px 10px}
+.hp-chip{position:relative;overflow:hidden;padding-bottom:3px}
+.hp-chip .hb{position:absolute;left:0;right:0;bottom:0;height:4px;background:color-mix(in srgb, var(--ink-3) 25%, transparent)}
+.hp-chip .hb i{display:block;height:100%}
+#hpv{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.hpbar{display:flex;height:16px;border-radius:999px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+.hpbar i{display:block;height:100%;transition:width .25s}
+.hpbar .tm{background:var(--accent)}
+.hpnums{display:flex;align-items:baseline;justify-content:center;gap:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.hpnums .big{font-size:52px;font-weight:800;line-height:1}
+.hpnums .of{font-size:24px;font-weight:700;color:var(--ink-3)}
+.hpnums .tmpb{font-size:16px;font-weight:800;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:3px 10px;align-self:center}
+.hplog{display:flex;align-items:center;gap:8px;justify-content:space-between;font-size:14px;color:var(--ink-2);background:var(--surface-2);border-radius:10px;padding:6px 6px 6px 12px}
+.hplog b.d{color:#D64545}.hplog b.h{color:#2E8B57}.hplog b.t,.hplog b.m{color:var(--accent)}
+.hplog .btn{min-height:36px;padding:0 12px;flex:none}
+.death{background:var(--warn-soft);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.death p{margin:0;font-weight:800;color:var(--warn)}
+.death .ds{display:flex;align-items:center;gap:6px}
+.death .ds span{width:96px;font-size:14px;font-weight:700;color:var(--ink-2)}
+.death .dp{width:36px;height:36px;border-radius:50%;border:2px solid var(--ink-3);background:none;cursor:pointer}
+.death .dp.on.s{background:#2E8B57;border-color:#2E8B57}.death .dp.on.f{background:#D64545;border-color:#D64545}
+.hp-amt{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 8px}
+.hp-amt .lab{font-size:13px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.hp-amt output{min-width:3.2em;text-align:center;font-size:40px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums;border-bottom:3px solid var(--accent)}
+.hp-amt output.zero{color:var(--ink-3);border-color:var(--line-2)}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.kp button{height:50px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-size:22px;font-weight:800;cursor:pointer}
+.kp button.fn{font-size:15px;color:var(--ink-2)}
+.hp-row{display:flex;gap:10px}
+.hp-row .btn{flex:1;font-size:18px;padding:14px 8px;min-height:54px}
 .btn.dmg{background:#C0392B;border-color:#C0392B;color:#fff}
 .btn.heal{background:#2E8B57;border-color:#2E8B57;color:#fff}
-.hp-set{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.hp-set label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
-.hp-set input{height:44px;font:inherit;font-size:18px;font-weight:700;text-align:center;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink)}
+.btn.tmp{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.hp-act:disabled{opacity:.4}
+.hp-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;color:var(--ink-2);font-size:14px}
 .sh-hp .btn{margin-top:4px}
-.hp-set label{min-width:0}.hp-set input{width:100%;min-width:0}
 @media (max-width:560px){ #concSlot{flex-wrap:nowrap} #concSlot .conc-chip{flex:1 1 auto;min-width:0;width:auto} }
 @media (min-width:900px){.btn.d-close{display:none}}
 .portrait-btn{flex:none;border:0;background:none;padding:0;border-radius:12px}
@@ -557,7 +572,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0}, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0}, death:{s:0,f:0}, hpLog:[], ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -583,7 +598,10 @@ function normBook(o){
   if (!o.ab){ const ck = castKey(b); if (ck) b.ab[ck] = b.score; }      // schede precedenti: la caratteristica da incantatore c'era già
   if (o.saves && typeof o.saves === "object"){ b.saves = {}; for (const [k] of SH_ABS) if (o.saves[k]) b.saves[k] = 1; }
   if (o.skills && typeof o.skills === "object") for (const [k] of SH_SKILLS) if (o.skills[k] === 1 || o.skills[k] === 2) b.skills[k] = o.skills[k];
-  if (o.hp && typeof o.hp === "object") b.hp = { max:num(o.hp.max, 0, 9999, 0), cur:num(o.hp.cur, -9999, 9999, 0), tmp:num(o.hp.tmp, 0, 9999, 0) };
+  if (o.hp && typeof o.hp === "object") b.hp = { max:num(o.hp.max, 0, 9999, 0), cur:num(o.hp.cur, 0, 9999, 0), tmp:num(o.hp.tmp, 0, 9999, 0) };
+  b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
+  b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
+    .map(e => ({ k:e.k, n:num(e.n, 0, 9999, 0), p:{ cur:num(e.p.cur, 0, 9999, 0), tmp:num(e.p.tmp, 0, 9999, 0), max:num(e.p.max, 0, 9999, 0), s:num(e.p.s, 0, 3, 0), f:num(e.p.f, 0, 3, 0) } })) : [];
   b.ac = num(o.ac, 0, 99, 10);
   b.speed = typeof o.speed === "string" ? o.speed.slice(0, 24) : "";
   if (o.coins && typeof o.coins === "object") for (const [k] of SH_COINS) b.coins[k] = num(o.coins[k], 0, 99999999, 0);
@@ -896,7 +914,6 @@ function renderHeader(){
       <button class="end" data-act="conc-end" aria-label="Termina la concentrazione">Termina</button></span>` : "");
   const cp = document.querySelector("#sheet .cp"); if (cp) cp.outerHTML = concPanel(b);
   const hv = document.getElementById("hpv"); if (hv) hv.outerHTML = hpView(b);
-  const hs = document.getElementById("hpSet"); if (hs && !hs.contains(document.activeElement)) hs.outerHTML = hpSet(b);
   const feats = Object.keys(b.feats).length;
   const secs = [["sheet", "Scheda", null], ["spells", "Incantesimi", readyCount(b)], ["trait", "Privilegi", null], ["feat", "Talenti", feats]];
   $("#sections").innerHTML = secs.map(([k, label, n]) =>
@@ -1413,7 +1430,7 @@ function sheetHTML(b){
         <div class="sh-hp"><button class="pm" data-act="sh-hp" data-d="-1" aria-label="Perdi 1 punto ferita">−</button>${num("hp.cur", b.hp.cur, "Punti ferita attuali", "cur")}<button class="pm" data-act="sh-hp" data-d="1" aria-label="Recupera 1 punto ferita">+</button>
           <span class="of">su</span>${num("hp.max", b.hp.max, "Punti ferita massimi", "small")}</div>
         <div class="sh-hp"><span class="of">Temporanei</span>${num("hp.tmp", b.hp.tmp, "Punti ferita temporanei", "small")}</div>
-        <button class="btn soft" data-act="hp-panel">Danno o cura…</button></div>
+        <button class="btn soft" data-act="hp-panel">♥ Danno, cura, temporanei…</button></div>
       <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}</div>
       <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shMod(b.ab.des))}</b></div>
       <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(r ? r.speed : "9 m")}" aria-label="Velocità"></div>
@@ -1470,41 +1487,71 @@ function setSheetField(b, f, v){
     if (part[1] === "n") a.n = String(v).trim().slice(0, 40) || a.n; else a.q = clamp(Number.isFinite(n) ? n : 0, 0, 99999); }
 }
 /* ---------- Punti ferita ---------- */
+let hpAmt = "", hpMode = "play";
+const hpPct = h => h.max ? Math.max(0, Math.min(100, Math.round(h.cur / h.max * 100))) : 0;
+const hpColor = p => p > 50 ? "#2E8B57" : p > 25 ? "#D9A21B" : "#D64545";
 function hpChip(b){
-  const h = b.hp, down = h.max > 0 && h.cur <= 0;
+  const h = b.hp, p = hpPct(h), down = h.max > 0 && h.cur <= 0;
   return `<button class="hp-chip${down ? " down" : ""}" data-act="hp-panel" aria-label="Punti ferita: ${h.cur} su ${h.max}${h.tmp ? `, più ${h.tmp} temporanei` : ""}. Tocca per danni e cure">`
-    + `<span class="h" aria-hidden="true">♥</span>${h.max ? `${h.cur}/${h.max}` : "PF"}${h.tmp ? `<span class="t">+${h.tmp}</span>` : ""}</button>`;
+    + `<span class="h" aria-hidden="true">♥</span>${h.max ? `${h.cur}/${h.max}` : "PF"}${h.tmp ? `<span class="t">+${h.tmp}</span>` : ""}`
+    + `${h.max ? `<span class="hb" aria-hidden="true"><i style="width:${p}%;background:${hpColor(p)}"></i></span>` : ""}</button>`;
 }
+const HP_LOG = { d:"−", h:"+", t:"temp +", m:"max " };
 function hpView(b){
-  const h = b.hp;
-  return `<div class="hpv" id="hpv" aria-live="polite"><span class="big">${h.cur}<small> / ${h.max || "—"}</small></span>
-    ${h.tmp ? `<span class="tmp">+${h.tmp} punti ferita temporanei</span>` : ""}
-    ${h.max && h.cur <= 0 ? `<span class="state">A 0 punti ferita: privo di sensi, tiri salvezza contro la morte</span>` : ""}</div>`;
+  const h = b.hp, p = hpPct(h), tp = h.max ? Math.min(100 - p, Math.round(h.tmp / h.max * 100)) : 0;
+  if (hpMode === "max") return `<div id="hpv"></div>`;
+  return `<div id="hpv" aria-live="polite">
+    <div class="hpbar" aria-hidden="true"><i style="width:${p}%;background:${hpColor(p)}"></i><i class="tm" style="width:${tp}%"></i></div>
+    <div class="hpnums"><span class="big">${h.cur}</span><span class="of">/ ${h.max}</span>${h.tmp ? `<span class="tmpb">+${h.tmp} temporanei</span>` : ""}</div>
+    ${h.max && h.cur <= 0 ? `<div class="death">
+      <p>${b.death.s >= 3 ? "Stabile: non tiri più contro la morte" : b.death.f >= 3 ? "Il personaggio è morto" : "A 0 punti ferita: privo di sensi. Tiri salvezza contro la morte:"}</p>
+      ${[["s", "Successi"], ["f", "Fallimenti"]].map(([k, l]) => `<div class="ds"><span>${l}</span>${[0, 1, 2].map(i => `<button class="dp ${k}${b.death[k] > i ? " on" : ""}" data-act="hp-death" data-k="${k}" data-i="${i}" aria-label="${l} ${i + 1}"></button>`).join("")}</div>`).join("")}
+    </div>` : ""}
+    ${b.hpLog.length ? `<div class="hplog"><span>Ultime: ${b.hpLog.slice(-4).reverse().map(e => `<b class="${e.k}">${HP_LOG[e.k]}${e.n}</b>`).join(" · ")}</span><button class="btn" data-act="hp-undo">↶ Annulla</button></div>` : ""}
+  </div>`;
 }
-function hpSet(b){
-  return `<div class="hp-set" id="hpSet">
-    <label>Massimi<input type="number" inputmode="numeric" data-hp="max" value="${b.hp.max}"></label>
-    <label>Temporanei<input type="number" inputmode="numeric" data-hp="tmp" value="${b.hp.tmp}"></label></div>`;
+function hpKeypad(){
+  return `<div class="hp-amt"><span class="lab">${hpMode === "max" ? "Massimi" : "Quanti?"}</span><output id="hpAmtView" class="zero">0</output></div>
+    <div class="kp">${["1", "2", "3", "4", "5", "6", "7", "8", "9"].map(k => `<button data-act="hp-key" data-k="${k}">${k}</button>`).join("")}
+      <button class="fn" data-act="hp-key" data-k="C">Azzera</button><button data-act="hp-key" data-k="0">0</button><button class="fn" data-act="hp-key" data-k="B" aria-label="Cancella l'ultima cifra">⌫</button></div>`;
 }
-function openHpPanel(){
+function openHpPanel(mode){
   const b = book();
-  openSheet(`<h2 tabindex="-1" autofocus>Punti ferita</h2>${hpView(b)}
-    ${b.hp.max ? "" : `<p class="note" style="text-align:center;margin:0 0 12px">Prima imposta i punti ferita <b>massimi</b> qui sotto.</p>`}
-    <div class="hp-amt"><button class="pm2" data-act="hp-amt" data-d="-1" aria-label="Meno">−</button><input id="hpAmt" type="number" inputmode="numeric" min="1" value="1" aria-label="Quantità di punti ferita"><button class="pm2" data-act="hp-amt" data-d="1" aria-label="Più">+</button></div>
-    <div class="hp-q">${[1, 2, 5, 10, 20].map(n => `<button class="btn soft" data-act="hp-amt-set" data-n="${n}">${n}</button>`).join("")}</div>
-    <div class="hp-row"><button class="btn dmg" data-act="hp-dmg">− Danno</button><button class="btn heal" data-act="hp-heal">+ Cura</button></div>
-    ${hpSet(b)}
-    <p class="note" style="margin:14px 0 0">I danni tolgono prima i punti ferita temporanei. Le cure non superano i massimi e non danno punti ferita temporanei.</p>
-    <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
+  hpMode = mode || (b.hp.max ? "play" : "max");
+  hpAmt = hpMode === "max" && b.hp.max ? String(b.hp.max) : "";
+  openSheet(hpMode === "max"
+    ? `<h2 tabindex="-1" autofocus>Punti ferita massimi</h2>
+      <p>${b.hp.max ? "Scrivi i nuovi punti ferita massimi (per esempio dopo un passaggio di livello)." : "Quanti punti ferita massimi ha il personaggio? Si fa una volta sola: poi segni solo danni e cure."}</p>
+      ${hpView(b)}${hpKeypad()}
+      <div class="hp-row"><button class="btn primary hp-act" data-act="hp-setmax">Imposta i massimi</button></div>
+      <div class="sheet-foot"><button class="btn" data-act="${b.hp.max ? "hp-back" : "sheet-close"}">${b.hp.max ? "Indietro" : "Chiudi"}</button></div>`
+    : `<h2 tabindex="-1" autofocus>Punti ferita</h2>${hpView(b)}${hpKeypad()}
+      <div class="hp-row"><button class="btn dmg hp-act" data-act="hp-dmg">− Danno</button><button class="btn heal hp-act" data-act="hp-heal">+ Cura</button></div>
+      <div class="hp-row" style="margin-top:8px"><button class="btn tmp hp-act" data-act="hp-tmp">+ Punti ferita temporanei</button></div>
+      <div class="hp-foot"><span>I danni tolgono prima i temporanei.</span><button class="btn" data-act="hp-max">Massimi: ${b.hp.max} ✎</button></div>
+      <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
+  hpAmtRefresh();
 }
-function hpAmount(){ const v = parseInt((document.getElementById("hpAmt") || {}).value, 10); return Number.isFinite(v) && v > 0 ? Math.min(v, 9999) : 1; }
+function hpAmtRefresh(){
+  const o = document.getElementById("hpAmtView"); if (!o) return;
+  o.textContent = hpAmt || "0"; o.classList.toggle("zero", !hpAmt);
+  document.querySelectorAll("#sheet .hp-act").forEach(x => { x.disabled = !hpAmt || +hpAmt === 0; });
+}
+function hpKey(k){
+  if (k === "C") hpAmt = ""; else if (k === "B") hpAmt = hpAmt.slice(0, -1);
+  else if (hpAmt.length < 4) hpAmt = (hpAmt + k).replace(/^0+/, "");
+  hpAmtRefresh();
+}
+function hpLog(b, k, n){ b.hpLog.push({ k, n, p:{ cur:b.hp.cur, tmp:b.hp.tmp, max:b.hp.max, s:b.death.s, f:b.death.f } }); if (b.hpLog.length > 20) b.hpLog.shift(); }
 function hpDamage(b, n){
-  const h = b.hp, fromTmp = Math.min(h.tmp, n);
+  const h = b.hp, fromTmp = Math.min(h.tmp, n), wasDown = h.max > 0 && h.cur <= 0;
   h.tmp -= fromTmp; h.cur = Math.max(0, h.cur - (n - fromTmp));
+  if (wasDown && n - fromTmp > 0 && b.death.f < 3) b.death.f++;   // danni a 0 PF: un fallimento contro la morte
   return fromTmp;
 }
-function hpHeal(b, n){ const h = b.hp; h.cur = h.max ? Math.min(h.max, Math.max(0, h.cur) + n) : h.cur + n; }
+function hpHeal(b, n){ const h = b.hp; if (h.cur <= 0) b.death = { s:0, f:0 }; h.cur = h.max ? Math.min(h.max, h.cur + n) : h.cur + n; }
 function hpChanged(){ commit(); renderHeader(); renderSheet(); }
+function hpAfter(){ hpAmt = ""; hpChanged(); hpAmtRefresh(); }
 function openConcPanel(){
   openSheet(`<h2 tabindex="-1" autofocus>Concentrazione</h2>${concPanel(book())}
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
@@ -2146,14 +2193,23 @@ document.addEventListener("click", e => {
     case "sh-ab": { const k = el.dataset.k; b.ab[k] = clamp(b.ab[k] + Number(el.dataset.d), 1, 30); commit(); renderHeader(); renderSheet(); break; }
     case "sh-save": { const sv = Object.assign({}, shSaves(b)); if (sv[el.dataset.k]) delete sv[el.dataset.k]; else sv[el.dataset.k] = 1; b.saves = sv; commit(); renderSheet(); break; }
     case "sh-skill": { const k = el.dataset.k, l = ((b.skills[k] || 0) + 1) % 3; if (l) b.skills[k] = l; else delete b.skills[k]; commit(); renderSheet(); break; }
-    case "sh-hp": if (Number(el.dataset.d) < 0) hpDamage(b, 1); else hpHeal(b, 1); hpChanged(); break;
+    case "sh-hp": { const d = Number(el.dataset.d); hpLog(b, d < 0 ? "d" : "h", 1); if (d < 0) hpDamage(b, 1); else hpHeal(b, 1); hpChanged(); break; }
     case "hp-panel": openHpPanel(); break;
-    case "hp-amt": { const i = document.getElementById("hpAmt"); if (i) i.value = Math.max(1, hpAmount() + Number(el.dataset.d)); break; }
-    case "hp-amt-set": { const i = document.getElementById("hpAmt"); if (i) i.value = el.dataset.n; break; }
-    case "hp-dmg": { const n = hpAmount(), t = hpDamage(b, n); hpChanged();
+    case "hp-max": openHpPanel("max"); break;
+    case "hp-back": openHpPanel("play"); break;
+    case "hp-key": hpKey(el.dataset.k); break;
+    case "hp-dmg": { const n = +hpAmt; if (!n) break; hpLog(b, "d", n); const t = hpDamage(b, n); hpAfter();
       const cs = b.conc ? getSpell(b.conc) : null;
-      toast(`−${n} PF${t ? ` (${t} dai temporanei)` : ""}: ora ${b.hp.cur}${b.hp.max ? "/" + b.hp.max : ""}${cs ? ` · ${cs.n}: TS Costituzione CD ${Math.max(10, Math.floor(n / 2))}` : ""}`); break; }
-    case "hp-heal": { const n = hpAmount(); hpHeal(b, n); hpChanged(); toast(`+${n} PF: ora ${b.hp.cur}${b.hp.max ? "/" + b.hp.max : ""}`); break; }
+      toast(`−${n} PF${t ? ` (${t} dai temporanei)` : ""}: ora ${b.hp.cur}/${b.hp.max}${cs ? ` · ${cs.n}: TS Costituzione CD ${Math.max(10, Math.floor(n / 2))}` : ""}`); break; }
+    case "hp-heal": { const n = +hpAmt; if (!n) break; hpLog(b, "h", n); hpHeal(b, n); hpAfter(); toast(`+${n} PF: ora ${b.hp.cur}/${b.hp.max}`); break; }
+    case "hp-tmp": { const n = +hpAmt; if (!n) break;
+      if (n <= b.hp.tmp){ hpAmt = ""; hpAmtRefresh(); toast(`Hai già ${b.hp.tmp} temporanei: non si sommano, tieni il valore più alto`); break; }
+      hpLog(b, "t", n); b.hp.tmp = n; hpAfter(); toast(`Punti ferita temporanei: ${n}`); break; }
+    case "hp-setmax": { const n = +hpAmt; if (!n) break; hpLog(b, "m", n); const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n;
+      hpChanged(); openHpPanel("play"); toast(`Punti ferita massimi: ${n}`); break; }
+    case "hp-undo": { const e = b.hpLog.pop(); if (!e) break; Object.assign(b.hp, { cur:e.p.cur, tmp:e.p.tmp, max:e.p.max }); b.death = { s:e.p.s, f:e.p.f };
+      hpChanged(); toast("Ultima modifica annullata"); break; }
+    case "hp-death": { const k = el.dataset.k, i2 = +el.dataset.i; b.death[k] = b.death[k] === i2 + 1 ? i2 : i2 + 1; hpChanged(); break; }
     case "sh-coin": { const k = el.dataset.k; b.coins[k] = Math.max(0, b.coins[k] + Number(el.dataset.d)); commit(); renderSheet(); break; }
     case "sh-am": { const a = b.ammo[+el.dataset.i]; if (!a) break; const d = Number(el.dataset.d);
       if (d < 0){ if (!a.q) break; a.q--; a.spent++; } else a.q++;
@@ -2238,6 +2294,10 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("keydown", e => {
+  if (document.getElementById("hpAmtView") && !e.target.closest("input, textarea, select")){
+    if (/^[0-9]$/.test(e.key)){ hpKey(e.key); e.preventDefault(); return; }
+    if (e.key === "Backspace"){ hpKey("B"); e.preventDefault(); return; }
+  }
   if (e.key === "Escape"){ if (!$("#sheet").hidden) closeSheet(); else if (document.documentElement.classList.contains("detail-open")) closeDetail(); }
   if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("row") && e.target.dataset.act === "open"){ e.preventDefault(); openDetail(e.target.dataset.kind || "s", e.target.dataset.id); }
 });
@@ -2260,10 +2320,6 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target;
-  if (t.dataset && t.dataset.hp){ const b = book(), n = Math.max(0, Math.min(9999, parseInt(t.value, 10) || 0));
-    if (t.dataset.hp === "max"){ const first = !b.hp.max && !b.hp.cur; b.hp.max = n; if (first) b.hp.cur = n; else if (n && b.hp.cur > n) b.hp.cur = n; }
-    else b.hp.tmp = n;
-    hpChanged(); const box = document.getElementById("hpSet"); if (box) box.outerHTML = hpSet(b); return; }
   if (t.dataset && t.dataset.f && t.closest(".sh")){ const b = book(); setSheetField(b, t.dataset.f, t.value); commit(); renderHeader(); renderSheet(); return; }
   if (t.id === "fSch"){ UI.sch = t.value; saveUI(); renderResults(); }
   if (t.id === "fSrc"){ UI.src = t.value; saveUI(); renderResults(); }
