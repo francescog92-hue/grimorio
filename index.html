@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 22cebf";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 3b0f00";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -356,6 +356,26 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .sh-coin .cn small{color:var(--ink-3);margin-left:4px}
 .sh-coin .dot{width:14px;height:14px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:-2px;box-shadow:inset 0 -2px 0 rgba(0,0,0,.25)}
 .sh-coin input{width:6em;text-align:center}
+.sec-eye{flex:none;width:46px;height:46px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);display:inline-grid;place-items:center;cursor:pointer;position:relative}
+.sec-eye svg{width:22px;height:22px}
+.sec-eye .n{position:absolute;top:-6px;right:-6px;min-width:20px;height:20px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:800;display:grid;place-items:center;padding:0 5px}
+.ab-tot{font-size:14px;color:var(--ink-2);font-weight:700;margin-top:-4px}
+.ab-tot small{color:var(--accent);font-weight:800}
+.ab-cap{font-size:11px;color:var(--ink-3);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:-4px}
+.sk .auto{font-size:11px;color:var(--accent);font-weight:800;margin-left:6px;text-transform:uppercase;letter-spacing:.04em}
+.sh-calc{font-size:12px;color:var(--ink-3);font-weight:700}
+.sh-box input:disabled{opacity:.75}
+.bx{display:flex;flex-direction:column;gap:6px}
+.bx-row{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.bx-row.todo{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn) inset}
+.bx-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.bx-h b{font-size:15px}
+.bx-fx{font-size:14px;color:var(--ink-2)}
+.bx-pick{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.bx-pick select{height:40px;border-radius:10px;border:1px solid var(--pill-dark);background:var(--pill-dark);color:#fff;color-scheme:dark;padding:0 10px;font:inherit;font-weight:700;font-size:14px;max-width:100%}
+.bx-todo{font-size:12px;font-weight:800;color:var(--warn);text-transform:uppercase;letter-spacing:.06em}
+.migr{background:var(--warn-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.migr p{margin:0;color:var(--ink)}
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
 .sh-am{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .am-row{display:flex;align-items:center;gap:8px}
@@ -597,7 +617,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0}, death:{s:0,f:0}, hpLog:[], ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -623,7 +643,12 @@ function normBook(o){
   if (!o.ab){ const ck = castKey(b); if (ck) b.ab[ck] = b.score; }      // schede precedenti: la caratteristica da incantatore c'era già
   if (o.saves && typeof o.saves === "object"){ b.saves = {}; for (const [k] of SH_ABS) if (o.saves[k]) b.saves[k] = 1; }
   if (o.skills && typeof o.skills === "object") for (const [k] of SH_SKILLS) if (o.skills[k] === 1 || o.skills[k] === 2) b.skills[k] = o.skills[k];
-  if (o.hp && typeof o.hp === "object") b.hp = { max:num(o.hp.max, 0, 9999, 0), cur:num(o.hp.cur, 0, 9999, 0), tmp:num(o.hp.tmp, 0, 9999, 0) };
+  if (o.hp && typeof o.hp === "object") b.hp = { max:num(o.hp.max, 0, 9999, 0), cur:num(o.hp.cur, 0, 9999, 0), tmp:num(o.hp.tmp, 0, 9999, 0),
+    auto:typeof o.hp.auto === "boolean" ? o.hp.auto : !(num(o.hp.max, 0, 9999, 0) > 0) };
+  b.ch = {}; if (o.ch && typeof o.ch === "object") for (const k of Object.keys(o.ch)) { const c = o.ch[k]; if (c && typeof c === "object")
+    b.ch[k] = { m:num(c.m, 0, 9, 0), a:Array.isArray(c.a) ? c.a.map(x => String(x)).slice(0, 4) : [], s:Array.isArray(c.s) ? c.s.map(x => String(x)).slice(0, 4) : [], e:typeof c.e === "string" ? c.e : "" }; }
+  b.hideSecs = {}; if (o.hideSecs && typeof o.hideSecs === "object") for (const k of ["sheet", "spells", "trait", "feat"]) if (o.hideSecs[k]) b.hideSecs[k] = 1;
+  b.v20 = o.v20 ? 1 : 0;
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
   b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
     .map(e => ({ k:e.k, n:num(e.n, 0, 9999, 0), p:{ cur:num(e.p.cur, 0, 9999, 0), tmp:num(e.p.tmp, 0, 9999, 0), max:num(e.p.max, 0, 9999, 0), s:num(e.p.s, 0, 3, 0), f:num(e.p.f, 0, 3, 0) } })) : [];
@@ -641,6 +666,7 @@ function normBook(o){
 }
 const book = () => S.books[S.active];
 /* ---------- Scheda: caratteristiche, abilità, monete, munizioni ---------- */
+const SECS = [["sheet", "Scheda"], ["spells", "Incantesimi"], ["trait", "Privilegi"], ["feat", "Talenti"]];
 const SH_ABS = [["for", "Forza"], ["des", "Destrezza"], ["cos", "Costituzione"], ["int", "Intelligenza"], ["sag", "Saggezza"], ["car", "Carisma"]];
 const SH_ABBR = { for:"FOR", des:"DES", cos:"COS", int:"INT", sag:"SAG", car:"CAR" };
 const SH_SKILLS = [["acrobazia", "Acrobazia", "des"], ["animali", "Addestrare Animali", "sag"], ["arcano", "Arcano", "int"], ["atletica", "Atletica", "for"],
@@ -658,7 +684,149 @@ const shMod = v => Math.floor((v - 10) / 2);
 const shSign = n => (n < 0 ? "−" : "+") + Math.abs(n);
 const shProf = b => 2 + Math.floor((b.lvl - 1) / 4);
 const shSaves = b => b.saves || Object.fromEntries((SH_CLASS_SAVES[b.cls] || []).map(k => [k, 1]));
-const shSkill = (b, k, ab) => shMod(b.ab[ab]) + (b.skills[k] || 0) * shProf(b);
+/* ---------- Bonus automatici: specie, background, privilegi di classe e sottoclasse, talenti ---------- */
+const AB_ALL = ["for", "des", "cos", "int", "sag", "car"];
+const AB_FROM_NAME = { forza:"for", destrezza:"des", costituzione:"cos", intelligenza:"int", saggezza:"sag", carisma:"car" };
+const SKILL_BY_NAME = Object.fromEntries(SH_SKILLS.map(([k, n]) => [n.toLowerCase(), k]));
+const SK_ALL = SH_SKILLS.map(x => x[0]);
+/* Effetti: ab {car:2} fissi · ab1 [lista] +1 a scelta · pick [[2,1],[1,1,1]] schemi a scelta · asi (Aumento dei Punteggi) · saveSame (TS della caratteristica scelta)
+   skills [fisse] · skillPick {n, from} · expert n (maestria a scelta) · init · initAb · initProf · speed (m) · speedMonk · hpLvl · passive · jack · athlete
+   allSaves · saveCha · ac {base, ab:[…], n} · cap24 */
+const FX = {
+  "bar-1-difesa-senza-armatura":{ ac:{ base:10, ab:["des", "cos"], n:"Difesa senza Armatura" } },
+  "mon-1-difesa-senza-armatura":{ ac:{ base:10, ab:["des", "sag"], n:"Difesa senza Armatura" } },
+  "str-draconic-1-resilienza-draconica":{ hpLvl:1, ac:{ base:13, ab:["des"], n:"Resilienza Draconica" } },
+  "bar-5-movimento-veloce":{ speed:3, note:"senza armatura pesante" }, "mon-2-movimento-senza-armatura":{ speedMonk:true, note:"senza armatura né scudo" },
+  "pal-glory-7-aura-di-alacrit":{ speed:3 },
+  "brd-2-factotum":{ jack:true }, "gue-champion-7-atleta-straordinario":{ athlete:true },
+  "mon-14-anima-di-diamante":{ allSaves:true }, "pal-6-aura-di-protezione":{ saveCha:true },
+  "bar-20-campione-primordiale":{ ab:{ for:4, cos:4 }, cap24:true },
+  "lad-swashbuckler-3-audacia-temeraria":{ initAb:"car" }, "mag-warmagic-2-saggezza-tattica":{ initAb:"int" },
+  "ran-gloomstalker-3-agguato-terrificante":{ initAb:"sag" }, "pal-watchers-7-aura-della-sentinella":{ initProf:true },
+  "dwarf-hill-robustezza-nanica":{ hpLvl:1 },
+  "lizardfolk-armatura-naturale":{ ac:{ base:13, ab:["des"], n:"Armatura Naturale" } }, "tortle-armatura-naturale":{ ac:{ base:17, ab:[], n:"Guscio" } },
+  "elf-sensi-acuti":{ skills:["percezione"] }, "eladrin-sensi-acuti":{ skills:["percezione"] }, "harengon-sensi-leporini":{ skills:["percezione"] },
+  "harengon-riflessi-della-lepre":{ initProf:true }, "halforc-minaccioso":{ skills:["intimidire"] }, "bugbear-furtivo":{ skills:["furtivita"] },
+  "satyr-festaiolo":{ skills:["intrattenere", "persuasione"] }, "tabaxi-talento-felino":{ skills:["percezione", "furtivita"] },
+  "human-variant-abilit":{ skillPick:{ n:1, from:SK_ALL } }, "halfelf-versatilit-nelle-abilit":{ skillPick:{ n:2, from:SK_ALL } },
+  "customlineage-tratto-variabile":{ skillPick:{ n:1, from:SK_ALL, opt:true } },
+  "centaur-affinit-naturale":{ skillPick:{ n:1, from:["animali", "medicina", "natura", "sopravvivenza"] } },
+  "changeling-istinti-del-mutaforma":{ skillPick:{ n:2, from:["inganno", "intuizione", "intimidire", "intrattenere", "persuasione"] } },
+  "kenku-addestramento-kenku":{ skillPick:{ n:2, from:["acrobazia", "inganno", "furtivita", "rapidita"] } },
+  "kobold-retaggio-dei-coboldi":{ skillPick:{ n:1, from:["arcano", "indagare", "medicina", "rapidita", "sopravvivenza"], opt:true } },
+  "lizardfolk-istinto-naturale":{ skillPick:{ n:2, from:["animali", "medicina", "natura", "percezione", "furtivita", "sopravvivenza"] } },
+  "shifter-istinti-bestiali":{ skillPick:{ n:1, from:["acrobazia", "atletica", "intimidire", "sopravvivenza"] } },
+  "tortle-istinto-di-sopravvivenza":{ skillPick:{ n:1, from:["animali", "medicina", "natura", "percezione", "furtivita", "sopravvivenza"] } }
+};
+const FEAT_FX = {
+  alert:{ init:5 }, athlete:{ ab1:["for", "des"] }, actor:{ ab:{ car:1 } }, durable:{ ab:{ cos:1 } }, "heavily-armored":{ ab:{ for:1 } },
+  "heavy-armor-master":{ ab:{ for:1 } }, "keen-mind":{ ab:{ int:1 } }, "lightly-armored":{ ab1:["for", "des"] }, linguist:{ ab:{ int:1 } },
+  mobile:{ speed:3 }, "moderately-armored":{ ab1:["for", "des"] }, observant:{ ab1:["int", "sag"], passive:5 },
+  resilient:{ ab1:AB_ALL, saveSame:true }, skilled:{ skillPick:{ n:3, from:SK_ALL } }, "tavern-brawler":{ ab1:["for", "cos"] }, tough:{ hpLvl:2 },
+  "weapon-master":{ ab1:["for", "des"] }, "dragon-fear":{ ab1:["for", "cos", "car"] },
+  "dragon-hide":{ ab1:["for", "cos", "car"], ac:{ base:13, ab:["des"], n:"Pelle Draconica" } }, "dwarven-fortitude":{ ab:{ cos:1 } },
+  "elven-accuracy":{ ab1:["des", "int", "sag", "car"] }, "fade-away":{ ab1:["des", "int"] }, "fey-teleportation":{ ab1:["int", "car"] },
+  "flames-of-phlegethos":{ ab1:["int", "car"] }, "infernal-constitution":{ ab:{ cos:1 } }, "orcish-fury":{ ab1:["for", "cos"] },
+  prodigy:{ skillPick:{ n:1, from:SK_ALL }, expert:1 }, "second-chance":{ ab1:["des", "cos", "car"] },
+  "squat-nimbleness":{ ab1:["for", "des"], speed:1.5, skillPick:{ n:1, from:["acrobazia", "atletica"] } }, chef:{ ab1:["cos", "sag"] },
+  crusher:{ ab1:["for", "cos"] }, "fey-touched":{ ab1:["int", "sag", "car"] }, gunner:{ ab:{ des:1 } }, piercer:{ ab1:["for", "des"] },
+  "shadow-touched":{ ab1:["int", "sag", "car"] }, "skill-expert":{ ab1:AB_ALL, skillPick:{ n:1, from:SK_ALL }, expert:1 }, slasher:{ ab1:["for", "des"] },
+  telekinetic:{ ab1:["int", "sag", "car"] }, telepathic:{ ab1:["int", "sag", "car"] }
+};
+function asiFx(t){
+  const fx = { ab:{} };
+  for (const m of String(t || "").matchAll(/(Forza|Destrezza|Costituzione|Intelligenza|Saggezza|Carisma) \+(\d)/g)) fx.ab[AB_FROM_NAME[m[1].toLowerCase()]] = +m[2];
+  if (/\+1 a tutte/.test(t)) AB_ALL.forEach(k => { fx.ab[k] = 1; });
+  if (/\+1 a due (caratteristiche a scelta|altre a scelta)/.test(t)) fx.pick = [[1, 1]];
+  if (/\+2 a una caratteristica a scelta/.test(t)) fx.pick = [[2]];
+  if (/\+2 a una e \+1 a un'altra, oppure \+1 a tre/.test(t)) fx.pick = [[2, 1], [1, 1, 1]];
+  return fx;
+}
+function bonusSources(b){
+  const out = [], c = clsOf(b), s = subOf(b), r = raceOf(b), sr = subraceOf(b), g = BG_BY.get(b.bg);
+  const add = (key, n, fx, kind) => { if (fx) out.push({ key, n, fx, kind }); };
+  if (r){
+    const fx = asiFx(r.asi); if (Object.keys(fx.ab).length || fx.pick) add("race:" + r.id, r.n, fx, "Specie");
+    if (sr && sr.asi){ const f2 = asiFx(sr.asi); if (Object.keys(f2.ab).length || f2.pick) add("race:" + r.id + ":" + sr.id, sr.n, f2, "Specie"); }
+    for (const t of r.t.concat(sr && sr.t ? sr.t : [])) add(t.id, t.n, FX[t.id], "Specie");
+  }
+  if (g){ const sk = g.sk.split(",").map(x => SKILL_BY_NAME[x.trim().toLowerCase()]).filter(Boolean); if (sk.length) add("bg:" + g.id, g.n, { skills:sk }, "Background"); }
+  if (c){
+    for (const f of c.f) if (f.l <= b.lvl){ if (/^Aumento dei Punteggi/.test(f.n)) add(f.id, `Aumento dei Punteggi di Caratteristica (${ord(f.l)} livello)`, { asi:true }, c.n); else add(f.id, f.n, FX[f.id], c.n); }
+    if (s) for (const f of s.f) if (f.l <= b.lvl) add(f.id, f.n, FX[f.id], s.n);
+  }
+  for (const id of Object.keys(b.feats)){ const f = FEATS.find(x => x.id === id); add("t:" + id, f ? f.n : id, FEAT_FX[id], "Talento"); }
+  return out;
+}
+const ASI_PATTERNS = [[2], [1, 1]];
+function bonusInfo(b){
+  const R = { ab:{}, abSrc:{}, saves:{}, skills:{}, skSrc:{}, expert:{}, init:0, initAb:[], initProf:false, speed:0, speedMonk:false, hpLvl:0, passive:0,
+    jack:false, athlete:false, allSaves:false, saveCha:false, ac:[], cap24:false, todo:0, sources:[] };
+  AB_ALL.forEach(k => { R.ab[k] = 0; R.abSrc[k] = []; });
+  for (const src of bonusSources(b)){
+    const fx = src.fx, ch = b.ch[src.key] || { m:0, a:[], s:[], e:"" }, info = { src, picks:[], todo:false };
+    const ab = (k, n) => { if (!AB_ALL.includes(k) || !n) return; R.ab[k] += n; R.abSrc[k].push(`+${n} ${src.n}`); };
+    if (fx.ab) for (const k of Object.keys(fx.ab)) ab(k, fx.ab[k]);
+    if (fx.ab1){ const k = ch.a[0]; if (fx.ab1.includes(k)) ab(k, 1); else info.todo = true; info.picks.push({ t:"a", i:0, from:fx.ab1, v:k, lab:"+1 a" }); if (fx.saveSame && fx.ab1.includes(k)) R.saves[k] = 1; }
+    const pats = fx.asi ? ASI_PATTERNS : fx.pick;
+    if (pats){
+      const m = Math.min(ch.m, pats.length - (fx.asi ? 0 : 1)), feat = fx.asi && m === pats.length;
+      info.mode = { pats, m, asi:!!fx.asi };
+      if (!feat){ const pat = pats[m] || pats[0];
+        pat.forEach((n, i) => { const k = ch.a[i], ok = AB_ALL.includes(k) && !(fx.ab && fx.ab[k]); if (ok) ab(k, n); else info.todo = true;
+          info.picks.push({ t:"a", i, from:AB_ALL.filter(x => !(fx.ab && fx.ab[x])), v:k, lab:"+" + n + " a" }); }); }
+    }
+    if (fx.skills) for (const k of fx.skills){ R.skills[k] = 1; (R.skSrc[k] = R.skSrc[k] || []).push(src.n); }
+    if (fx.skillPick) for (let i = 0; i < fx.skillPick.n; i++){ const k = ch.s[i];
+      if (fx.skillPick.from.includes(k)){ R.skills[k] = 1; (R.skSrc[k] = R.skSrc[k] || []).push(src.n); } else if (!fx.skillPick.opt) info.todo = true;
+      info.picks.push({ t:"s", i, from:fx.skillPick.from, v:k, lab:"Abilità" }); }
+    if (fx.expert){ const k = ch.e; if (SK_ALL.includes(k)) R.expert[k] = 1; else info.todo = true; info.picks.push({ t:"e", from:SK_ALL, v:k, lab:"Maestria" }); }
+    if (fx.init) R.init += fx.init;
+    if (fx.initAb) R.initAb.push(fx.initAb);
+    if (fx.initProf) R.initProf = true;
+    if (fx.speed) R.speed += fx.speed;
+    if (fx.speedMonk) R.speedMonk = true;
+    if (fx.hpLvl) R.hpLvl += fx.hpLvl;
+    if (fx.passive) R.passive += fx.passive;
+    ["jack", "athlete", "allSaves", "saveCha", "cap24"].forEach(f => { if (fx[f]) R[f] = true; });
+    if (fx.ac) R.ac.push(fx.ac);
+    if (info.todo) R.todo++;
+    R.sources.push(info);
+  }
+  return R;
+}
+function abv(b, k, R){
+  R = R || bonusInfo(b);
+  const cap = R.cap24 && (k === "for" || k === "cos") ? 24 : 20, base = b.ab[k];
+  return Math.min(Math.max(cap, base), base + R.ab[k]);
+}
+const shSkillLvl = (b, k, R) => Math.max(b.skills[k] || 0, R.skills[k] ? 1 : 0, R.expert[k] ? 2 : 0);
+function shSkill(b, k, ab, R){
+  R = R || bonusInfo(b);
+  const l = shSkillLvl(b, k, R), pb = shProf(b);
+  let v = shMod(abv(b, ab, R)) + l * pb;
+  if (!l && R.athlete && ["for", "des", "cos"].includes(ab)) v += Math.ceil(pb / 2);
+  else if (!l && R.jack) v += Math.floor(pb / 2);
+  return v;
+}
+function shInit(b, R){
+  const pb = shProf(b);
+  let v = shMod(abv(b, "des", R)) + R.init + R.initAb.reduce((t, k) => t + shMod(abv(b, k, R)), 0) + (R.initProf ? pb : 0);
+  if (R.athlete) v += Math.ceil(pb / 2); else if (R.jack) v += Math.floor(pb / 2);
+  return v;
+}
+function shSpeed(b, R){
+  const r = raceOf(b), m = r ? String(r.speed).match(/(\d+(?:,\d+)?)\s*m/) : null;
+  let v = m ? parseFloat(m[1].replace(",", ".")) : 9;
+  v += R.speed;
+  if (R.speedMonk) v += b.lvl >= 18 ? 9 : b.lvl >= 14 ? 7.5 : b.lvl >= 10 ? 6 : b.lvl >= 6 ? 4.5 : 3;
+  return v.toLocaleString("it-IT") + " m";
+}
+function hpAuto(b, R){
+  const c = clsOf(b); if (!c || !c.hd) return 0;
+  const hd = parseInt(String(c.hd).replace(/\D/g, ""), 10) || 8, con = shMod(abv(b, "cos", R));
+  return Math.max(b.lvl, hd + con + (b.lvl - 1) * (hd / 2 + 1 + con) + b.lvl * R.hpLvl);
+}
 const abMod = b => Math.floor((b.score - 10) / 2);
 const prof = b => 2 + Math.floor((b.lvl - 1) / 4);
 const clsOf = b => CLASS_BY[b.cls] || null;
@@ -791,7 +959,8 @@ function setStatus(txt, kind){ const el = $("#sync"); el.className = "sync" + (k
 function localStatus(){ const h = S.handles[S.active]; if (quotaWarned){ setStatus("Memoria del browser piena: salva la scheda su file", "err"); return; } setStatus(h ? `Salvato sul dispositivo e in ${h.name}` : "Salvato su questo dispositivo", "ok"); }
 function commit(){
   const b = book(); if (!b) return;
-  const ck = castKey(b); if (ck) b.score = b.ab[ck];
+  const R = bonusInfo(b), ck = castKey(b); if (ck) b.score = abv(b, ck, R);
+  if (b.hp.auto){ const m = hpAuto(b, R); if (m && m !== b.hp.max){ const d = b.hp.max ? m - b.hp.max : m; b.hp.max = m; b.hp.cur = Math.max(0, Math.min(m, b.hp.cur + d)); } }
   b.updated = Date.now(); cacheLocal(); localStatus();
   const id = S.active;
   if (S.handles[id]){ clearTimeout(S.fileTimer); setStatus("Salvataggio nel file…", "busy"); S.fileTimer = setTimeout(() => writeFile(id), 700); }
@@ -941,9 +1110,14 @@ function renderHeader(){
   const cp = document.querySelector("#sheet .cp"); if (cp) cp.outerHTML = concPanel(b);
   const hv = document.getElementById("hpv"); if (hv) hv.outerHTML = hpView(b);
   const feats = Object.keys(b.feats).length;
-  const secs = [["sheet", "Scheda", null], ["spells", "Incantesimi", readyCount(b)], ["trait", "Privilegi", null], ["feat", "Talenti", feats]];
-  $("#sections").innerHTML = secs.map(([k, label, n]) =>
-    `<button class="sec" role="tab" aria-selected="${UI.section === k}" data-act="section" data-v="${k}">${label}${n != null ? `<span class="n">${n}</span>` : ""}</button>`).join("");
+  const counts = { spells:readyCount(b), feat:feats };
+  const vis = SECS.filter(([k]) => !b.hideSecs[k]), hidden = SECS.length - vis.length;
+  if (b.hideSecs[UI.section] && vis.length){ UI.section = vis[0][0]; saveUI(); }
+  const eye = open => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>${open ? "" : `<path d="M3 3l18 18"/>`}</svg>`;
+  $("#sections").innerHTML = vis.map(([k, label]) =>
+    `<button class="sec" role="tab" aria-selected="${UI.section === k}" data-act="section" data-v="${k}">${label}${counts[k] != null ? `<span class="n">${counts[k]}</span>` : ""}</button>`).join("")
+    + (vis.length > 1 ? `<button class="sec-eye" data-act="sec-hide" aria-label="Nascondi la scheda ${esc((SECS.find(x => x[0] === UI.section) || ["", ""])[1])}" title="Nascondi questa scheda">${eye(false)}</button>` : "")
+    + (hidden ? `<button class="sec-eye" data-act="sec-show" aria-label="Mostra tutte le schede (${hidden} nascoste)" title="Mostra tutte le schede">${eye(true)}<span class="n">${hidden}</span></button>` : "");
 }
 
 /* ================= Parte alta di ogni sezione ================= */
@@ -1446,37 +1620,69 @@ function concPanel(b){
   </div>`;
 }
 function sheetHTML(b){
-  const pb = shProf(b), saves = shSaves(b), ck = castKey(b), r = raceOf(b), asi = raceAsi(b);
-  const perc = 10 + shSkill(b, "percezione", "sag");
-  const num = (f, v, lab, cls) => `<input class="${cls || ""}" type="number" inputmode="numeric" data-f="${f}" value="${v}" aria-label="${lab}">`;
+  const R = bonusInfo(b), pb = shProf(b), saves = Object.assign({}, shSaves(b), R.saves), ck = castKey(b);
+  if (R.allSaves) AB_ALL.forEach(k => { saves[k] = 1; });
+  const auraCha = R.saveCha ? Math.max(1, shMod(abv(b, "car", R))) : 0;
+  const perc = 10 + shSkill(b, "percezione", "sag", R) + R.passive;
+  const num = (f, v, lab, cls, dis) => `<input class="${cls || ""}" type="number" inputmode="numeric" data-f="${f}" value="${v}" aria-label="${lab}"${dis ? " disabled" : ""}>`;
   const total = SH_COINS.reduce((t, [k, , v]) => t + b.coins[k] * v, 0);
+  const hpA = hpAuto(b, R);
+  const acs = R.ac.map(a => ({ n:a.n, v:a.base + a.ab.reduce((t, k) => t + shMod(abv(b, k, R)), 0) }));
+  const skN = k => (SH_SKILLS.find(x => x[0] === k) || [k, k])[1];
+  const abN = k => (SH_ABS.find(x => x[0] === k) || [k, k])[1];
+  const legacy = !b.v20 && R.sources.some(x => x.src.kind === "Specie" && Object.keys(x.src.fx.ab || {}).length);
   return `<div class="sh">
+    ${legacy ? `<div class="migr"><p><b>Novità:</b> i bonus di specie e talenti ora si aggiungono da soli ai punteggi. Se li avevi già inseriti nei punteggi, toglili: altrimenti verrebbero contati due volte.</p>
+      <div class="btn-row"><button class="btn primary" data-act="bx-migr" data-v="sub">Togli i bonus dai punteggi base</button><button class="btn" data-act="bx-migr" data-v="ok">I punteggi erano già senza bonus</button></div></div>` : ""}
     <div class="sh-top">
       <div class="sh-box hp"><span class="lab">Punti ferita</span>
         <div class="sh-hp"><button class="pm" data-act="sh-hp" data-d="-1" aria-label="Perdi 1 punto ferita">−</button>${num("hp.cur", b.hp.cur, "Punti ferita attuali", "cur")}<button class="pm" data-act="sh-hp" data-d="1" aria-label="Recupera 1 punto ferita">+</button>
-          <span class="of">su</span>${num("hp.max", b.hp.max, "Punti ferita massimi", "small")}</div>
+          <span class="of">su</span>${num("hp.max", b.hp.max, "Punti ferita massimi", "small", b.hp.auto && hpA)}</div>
         <div class="sh-hp"><span class="of">Temporanei</span>${num("hp.tmp", b.hp.tmp, "Punti ferita temporanei", "small")}</div>
+        <span class="sh-calc">${b.hp.auto && hpA ? `Massimi calcolati: ${esc(clsOf(b).hd)} + Costituzione${R.hpLvl ? ` + ${R.hpLvl} per livello` : ""}` : hpA ? `Calcolati sarebbero ${hpA}` : ""}</span>
         <button class="btn soft" data-act="hp-panel">Dettagli punti ferita…</button></div>
-      <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}</div>
-      <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shMod(b.ab.des))}</b></div>
-      <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(r ? r.speed : "9 m")}" aria-label="Velocità"></div>
+      <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}
+        ${acs.map(a => `<button class="btn soft" style="min-height:34px;font-size:13px" data-act="bx-ac" data-v="${a.v}">${esc(a.n)}: ${a.v}</button>`).join("")}</div>
+      <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shInit(b, R))}</b></div>
+      <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(shSpeed(b, R))}" aria-label="Velocità"><span class="sh-calc">${b.speed ? "scritta a mano" : "calcolata"}</span></div>
       <div class="sh-box"><span class="lab">Competenza</span><b>${shSign(pb)}</b></div>
       <div class="sh-box"><span class="lab">Percezione passiva</span><b>${perc}</b></div>
     </div>
 
+    ${R.sources.length ? `<h3 class="sh-h">Bonus automatici${R.todo ? ` <span class="bx-todo">· ${R.todo} da scegliere</span>` : ""}</h3>
+    <p class="sh-note">Da specie, background, privilegi e talenti scelti: si sommano da soli. Dove serve una scelta, falla qui.</p>
+    <div class="bx">${R.sources.map(x => { const f = x.src.fx, parts = [];
+      if (f.ab) parts.push(Object.keys(f.ab).map(k => `${abN(k)} +${f.ab[k]}`).join(", "));
+      if (f.skills) parts.push("Competenza: " + f.skills.map(skN).join(", "));
+      if (f.saveSame) parts.push("competenza nel TS della caratteristica scelta");
+      if (f.init) parts.push(`Iniziativa +${f.init}`); if (f.initAb) parts.push(`Iniziativa + mod. di ${abN(f.initAb)}`); if (f.initProf) parts.push("Iniziativa + competenza");
+      if (f.speed) parts.push(`Velocità +${String(f.speed).replace(".", ",")} m${f.note ? ` (${f.note})` : ""}`); if (f.speedMonk) parts.push(`Velocità aumentata (${f.note})`);
+      if (f.hpLvl) parts.push(`PF massimi +${f.hpLvl} per livello`); if (f.passive) parts.push(`Percezione e Indagare passivi +${f.passive}`);
+      if (f.jack) parts.push("metà competenza alle prove senza competenza"); if (f.athlete) parts.push("metà competenza (arr. per eccesso) a Forza, Destrezza e Costituzione senza competenza");
+      if (f.allSaves) parts.push("competenza in tutti i TS"); if (f.saveCha) parts.push("+ mod. di Carisma a tutti i TS");
+      if (f.ac) parts.push(`CA senza armatura: ${f.ac.base}${f.ac.ab.length ? " + " + f.ac.ab.map(abN).join(" + ") : ""}`);
+      const sel = (pk) => `<select data-bx="${esc(x.src.key)}" data-t="${pk.t}" data-i="${pk.i || 0}" aria-label="${esc(pk.lab)}"><option value="">${pk.t === "a" ? pk.lab + "…" : pk.lab + "…"}</option>${pk.from.map(k => `<option value="${k}" ${k === pk.v ? "selected" : ""}>${pk.t === "a" ? abN(k) : skN(k)}</option>`).join("")}</select>`;
+      const mode = x.mode && (x.mode.pats.length > 1 || x.mode.asi) ? `<select data-bx="${esc(x.src.key)}" data-t="m" aria-label="Come distribuire">${x.mode.pats.map((pt, i) => `<option value="${i}" ${i === x.mode.m ? "selected" : ""}>${({ "2":"+2 a una caratteristica", "1,1":"+1 a due caratteristiche", "2,1":"+2 a una e +1 a un'altra", "1,1,1":"+1 a tre caratteristiche" })[pt.join(",")] || pt.map(n => "+" + n).join(" e ")}</option>`).join("")}${x.mode.asi ? `<option value="${x.mode.pats.length}" ${x.mode.m === x.mode.pats.length ? "selected" : ""}>Talento al suo posto</option>` : ""}</select>` : "";
+      return `<div class="bx-row${x.todo ? " todo" : ""}"><div class="bx-h"><b>${esc(x.src.n)}</b><span class="sh-calc">${esc(x.src.kind)}${x.todo ? ` · <span class="bx-todo">da scegliere</span>` : ""}</span></div>
+        ${parts.length ? `<div class="bx-fx">${parts.join(" · ")}</div>` : ""}
+        ${mode || x.picks.length ? `<div class="bx-pick">${mode}${x.picks.map(sel).join("")}</div>` : ""}
+        ${x.mode && x.mode.asi && x.mode.m === x.mode.pats.length ? `<div class="bx-fx">Scegli il talento nella sezione <b>Talenti</b>: i suoi bonus compaiono qui.</div>` : ""}</div>`; }).join("")}</div>` : ""}
+
     <h3 class="sh-h">Caratteristiche</h3>
-    ${asi ? `<p class="sh-note">Bonus della specie (${esc(raceName(b))}): ${esc(asi)}. Inseriscili nei punteggi.</p>` : ""}
-    <div class="sh-abs">${SH_ABS.map(([k, n]) => `<div class="ab-card${k === ck ? " cast" : ""}">
+    <div class="sh-abs">${SH_ABS.map(([k, n]) => { const tot = abv(b, k, R), bon = tot - b.ab[k];
+      return `<div class="ab-card${k === ck ? " cast" : ""}">
       <div class="ab-n">${n}${k === ck ? ` <small>· incantesimi</small>` : ""}</div>
-      <div class="ab-m">${shSign(shMod(b.ab[k]))}</div>
-      <div class="ab-s"><button class="pm" data-act="sh-ab" data-k="${k}" data-d="-1" aria-label="Diminuisci ${n}">−</button>${num("ab." + k, b.ab[k], "Punteggio di " + n)}<button class="pm" data-act="sh-ab" data-k="${k}" data-d="1" aria-label="Aumenta ${n}">+</button></div>
-      <button class="ts${saves[k] ? " on" : ""}" data-act="sh-save" data-k="${k}" aria-pressed="${!!saves[k]}"><span class="pd" aria-hidden="true"></span><span aria-hidden="true">TS</span><span class="sr">Tiro salvezza</span> ${shSign(shMod(b.ab[k]) + (saves[k] ? pb : 0))}</button>
-    </div>`).join("")}</div>
+      <div class="ab-m">${shSign(shMod(tot))}</div>
+      <div class="ab-tot" title="${esc(R.abSrc[k].join(", "))}">${tot}${bon ? ` <small>= ${b.ab[k]} + ${bon}</small>` : ""}</div>
+      <div class="ab-s"><button class="pm" data-act="sh-ab" data-k="${k}" data-d="-1" aria-label="Diminuisci ${n}">−</button>${num("ab." + k, b.ab[k], "Punteggio base di " + n)}<button class="pm" data-act="sh-ab" data-k="${k}" data-d="1" aria-label="Aumenta ${n}">+</button></div>
+      <span class="ab-cap">punteggio base</span>
+      <button class="ts${saves[k] ? " on" : ""}" data-act="sh-save" data-k="${k}" aria-pressed="${!!saves[k]}"><span class="pd" aria-hidden="true"></span><span aria-hidden="true">TS</span><span class="sr">Tiro salvezza</span> ${shSign(shMod(tot) + (saves[k] ? pb : 0) + auraCha)}</button>
+    </div>`; }).join("")}</div>
 
     <h3 class="sh-h">Abilità</h3>
-    <p class="sh-note">Tocca un'abilità: competenza (●), poi maestria (◆), poi niente. Il pallino dei <b>TS</b> segna la competenza nei tiri salvezza.</p>
-    <div class="sh-skills">${SH_SKILLS.map(([k, n, a]) => { const l = b.skills[k] || 0;
-      return `<button class="sk${l === 1 ? " p" : l === 2 ? " e" : ""}" data-act="sh-skill" data-k="${k}" aria-label="${n}: ${l === 2 ? "maestria" : l === 1 ? "competenza" : "nessuna competenza"}"><span class="pd" aria-hidden="true"></span><span class="nm">${n}<small>${SH_ABBR[a]}</small></span><b>${shSign(shSkill(b, k, a))}</b></button>`; }).join("")}</div>
+    <p class="sh-note">Tocca un'abilità: competenza (●), poi maestria (◆), poi niente. Quelle date da specie, background e talenti sono già segnate.</p>
+    <div class="sh-skills">${SH_SKILLS.map(([k, n, a]) => { const l = shSkillLvl(b, k, R), au = R.expert[k] ? "maestria" : R.skills[k] ? (R.skSrc[k] || []).join(", ") : "";
+      return `<button class="sk${l === 1 ? " p" : l === 2 ? " e" : ""}" data-act="sh-skill" data-k="${k}" aria-label="${n}: ${l === 2 ? "maestria" : l === 1 ? "competenza" : "nessuna competenza"}"><span class="pd" aria-hidden="true"></span><span class="nm">${n}<small>${SH_ABBR[a]}</small>${au ? `<span class="auto" title="${esc(au)}">auto</span>` : ""}</span><b>${shSign(shSkill(b, k, a, R))}</b></button>`; }).join("")}</div>
 
     <h3 class="sh-h">Borsa</h3>
     <div class="sh-coins">${SH_COINS.map(([k, n, , c]) => `<div class="sh-coin"><span class="cn"><span class="dot" style="background:${c}" aria-hidden="true"></span>${n}<small>${k}</small></span>
@@ -1543,7 +1749,9 @@ function hpView(b){
 function openHpPanel(){
   const b = book(), num = (k, v, l) => `<label>${l}<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-hp2="${k}" value="${v}"></label>`;
   openSheet(`<h2 tabindex="-1" autofocus>Punti ferita</h2>${hpView(b)}
-    <div class="hp-set2">${num("max", b.hp.max, "Massimi")}${num("tmp", b.hp.tmp, "Temporanei")}</div>
+    <div class="hp-set2">${b.hp.auto && hpAuto(b, bonusInfo(b)) ? `<label>Massimi<input type="text" value="${b.hp.max}" disabled></label>` : num("max", b.hp.max, "Massimi")}${num("tmp", b.hp.tmp, "Temporanei")}</div>
+    ${clsOf(b) ? `<div class="btn-row" style="margin-top:10px"><button class="btn${b.hp.auto ? " primary" : ""}" data-act="hp-auto">${b.hp.auto ? "✓ Massimi calcolati in automatico" : "Calcola i massimi in automatico"}</button></div>
+      <p class="note" style="margin:6px 0 0">${b.hp.auto ? `Dado vita ${esc(clsOf(b).hd)} (media dal 2° livello) + Costituzione per livello, più i bonus di specie e talenti. Si aggiornano da soli quando sali di livello.` : "Tocca il pulsante se vuoi che l'app li calcoli da dado vita, Costituzione e talenti."}</p>` : ""}
     <p class="note" style="margin:12px 0 0">Danni e cure si segnano dalla barra in alto: scrivi il numero e tocca <b>Danno</b> o <b>Cura</b>. I danni tolgono prima i temporanei.</p>
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
 }
@@ -2199,9 +2407,19 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "bx-ac": b.ac = +el.dataset.v; commit(); renderSheet(); toast(`Classe armatura: ${b.ac}`); break;
+    case "bx-migr": { if (el.dataset.v === "sub"){ const R = bonusInfo(b); AB_ALL.forEach(k => { b.ab[k] = Math.max(1, b.ab[k] - R.ab[k]); }); }
+      b.v20 = 1; commit(); renderHeader(); renderSheet(); toast(el.dataset.v === "sub" ? "Bonus tolti dai punteggi base: ora si sommano da soli" : "Perfetto: i bonus si sommano da soli"); break; }
+    case "hp-auto": b.hp.auto = !b.hp.auto; commit(); renderHeader(); renderSheet(); openHpPanel(); toast(b.hp.auto ? "PF massimi calcolati in automatico" : "PF massimi scritti a mano"); break;
+    case "sec-hide": { const vis = SECS.filter(([k]) => !b.hideSecs[k]); if (vis.length < 2) break; const cur = SECS.find(x => x[0] === UI.section);
+      b.hideSecs[UI.section] = 1; UI.section = SECS.find(([k]) => !b.hideSecs[k])[0]; saveUI(); commit(); closeDetail(); renderAll(true);
+      toast(`Scheda «${cur ? cur[1] : ""}» nascosta: per farla ricomparire tocca l'occhio aperto`); break; }
+    case "sec-show": b.hideSecs = {}; commit(); renderAll(true); toast("Tutte le schede sono di nuovo visibili"); break;
     case "sh-ab": { const k = el.dataset.k; b.ab[k] = clamp(b.ab[k] + Number(el.dataset.d), 1, 30); commit(); renderHeader(); renderSheet(); break; }
     case "sh-save": { const sv = Object.assign({}, shSaves(b)); if (sv[el.dataset.k]) delete sv[el.dataset.k]; else sv[el.dataset.k] = 1; b.saves = sv; commit(); renderSheet(); break; }
-    case "sh-skill": { const k = el.dataset.k, l = ((b.skills[k] || 0) + 1) % 3; if (l) b.skills[k] = l; else delete b.skills[k]; commit(); renderSheet(); break; }
+    case "sh-skill": { const k = el.dataset.k, R = bonusInfo(b), auto = R.expert[k] ? 2 : R.skills[k] ? 1 : 0;
+      let l = ((b.skills[k] || 0) + 1) % 3; if (auto && l === 1) l = 2; if (auto === 2) l = 0;
+      if (l) b.skills[k] = l; else delete b.skills[k]; commit(); renderSheet(); break; }
     case "sh-hp": { const d = Number(el.dataset.d); hpLog(b, d < 0 ? "d" : "h", 1); if (d < 0) hpDamage(b, 1); else hpHeal(b, 1); hpChanged(); break; }
     case "hp-panel": openHpPanel(); break;
     case "hpw-dmg": { const n = hpReadInput(); if (!n) break; hpLog(b, "d", n); const t = hpDamage(b, n); hpChanged();
@@ -2322,6 +2540,9 @@ document.addEventListener("change", e => {
   if (t.dataset && t.dataset.hp2){ const b = book(), n = Math.max(0, Math.min(9999, parseInt(String(t.value).replace(/\D/g, ""), 10) || 0)), k = t.dataset.hp2;
     if (n !== b.hp[k]){ hpLog(b, k === "max" ? "m" : "t", n); if (k === "max"){ const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n; } else b.hp.tmp = n; hpChanged(); }
     return; }
+  if (t.dataset && t.dataset.bx){ const b = book(), key = t.dataset.bx, c = b.ch[key] = b.ch[key] || { m:0, a:[], s:[], e:"" }, i = +t.dataset.i || 0;
+    if (t.dataset.t === "m"){ c.m = +t.value || 0; c.a = []; } else if (t.dataset.t === "a") c.a[i] = t.value; else if (t.dataset.t === "s") c.s[i] = t.value; else c.e = t.value;
+    commit(); renderHeader(); renderSheet(); return; }
   if (t.dataset && t.dataset.f && t.closest(".sh")){ const b = book(); setSheetField(b, t.dataset.f, t.value); commit(); renderHeader(); renderSheet(); return; }
   if (t.id === "fSch"){ UI.sch = t.value; saveUI(); renderResults(); }
   if (t.id === "fSrc"){ UI.src = t.value; saveUI(); renderResults(); }
