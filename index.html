@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · bd7cb6";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 22cebf";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -76,6 +76,21 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;backgroun
 .icon-btn{width:44px;height:44px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface);display:grid;place-items:center;font-size:20px;line-height:1}
 
 .controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}
+.hpw{margin-left:auto;flex:1 1 380px;max-width:620px;display:flex;align-items:center;gap:6px;min-width:0}
+.hpb{flex:1;min-width:110px;height:46px;position:relative;border-radius:12px;border:1px solid var(--line-2);background:var(--surface-2);overflow:hidden;padding:0;cursor:pointer;font:inherit;color:var(--ink)}
+.hpb .fill{position:absolute;left:0;top:0;bottom:0;transition:width .35s ease,background-color .35s ease}
+.hpb .tmpf{position:absolute;top:0;bottom:0;background:var(--accent);opacity:.8;transition:width .35s ease,left .35s ease}
+.hpb .txt{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;height:100%}
+.hpb .pill{display:inline-flex;align-items:center;gap:6px;background:color-mix(in srgb, var(--surface) 88%, transparent);border-radius:999px;padding:2px 12px;font-weight:800;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hpb .pill .hrt{color:#D64545}
+.hpb .pill .tp{color:var(--accent);font-size:14px}
+.hpb .pill .st{color:var(--danger);font-size:14px}
+.hpw input{width:68px;height:46px;flex:none;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font:inherit;font-size:19px;font-weight:800;text-align:center}
+.hpw input::placeholder{color:var(--ink-3);font-weight:600;font-size:15px}
+.hpw .hb{height:46px;padding:0 14px;border-radius:12px;border:0;font:inherit;font-size:16px;font-weight:800;color:#fff;cursor:pointer;white-space:nowrap;flex:none}
+.hpw .hb.d{background:#C0392B}.hpw .hb.h{background:#2E8B57}.hpw .hb.s{background:var(--accent);color:var(--on-accent)}
+.hpw.setup .hb.d,.hpw.setup .hb.h{display:none}.hpw:not(.setup) .hb.s{display:none}
+@media (max-width:560px){ .hpw{flex-basis:100%;max-width:none;margin-left:0} .hpw .hb{padding:0 11px} .hpw input{width:58px} }
 .field-pill{display:flex;align-items:center;gap:6px;height:44px;border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:0 6px 0 12px}
 .field-pill .lab{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
 .field-pill select{border:0;background:transparent;font-size:16px;font-weight:700;height:40px;padding-right:4px;max-width:170px}
@@ -413,6 +428,9 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .btn.heal{background:#2E8B57;border-color:#2E8B57;color:#fff}
 .btn.tmp{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .hp-act:disabled{opacity:.4}
+.hp-set2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.hp-set2 label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;min-width:0}
+.hp-set2 input{width:100%;height:46px;font:inherit;font-size:20px;font-weight:800;text-align:center;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink)}
 .hp-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:14px;color:var(--ink-2);font-size:14px}
 .sh-hp .btn{margin-top:4px}
 @media (max-width:560px){ #concSlot{flex-wrap:nowrap} #concSlot .conc-chip{flex:1 1 auto;min-width:0;width:auto} }
@@ -475,6 +493,13 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
         <button data-act="step" data-k="lvl" data-d="-1" aria-label="Diminuisci livello">−</button>
         <output id="lvl">1</output>
         <button data-act="step" data-k="lvl" data-d="1" aria-label="Aumenta livello">+</button>
+      </div>
+      <div class="hpw" id="hpw" role="group" aria-label="Punti ferita">
+        <button class="hpb" id="hpBar" data-act="hp-panel" aria-label="Punti ferita: dettagli"></button>
+        <input id="hpIn" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" enterkeyhint="done" placeholder="PF" aria-label="Quanti punti ferita">
+        <button class="hb d" data-act="hpw-dmg">− Danno</button>
+        <button class="hb h" data-act="hpw-heal">+ Cura</button>
+        <button class="hb s" data-act="hpw-set">Imposta i PF massimi</button>
       </div>
     </div>
     <nav class="sections" id="sections" role="tablist" aria-label="Sezioni"></nav>
@@ -908,7 +933,8 @@ function renderHeader(){
   // Concentrazione: sempre visibile in testata
   const cs = b.conc ? getSpell(b.conc) : null;
   if (cs && !b.concMax){ b.concMax = durationTurns(cs); b.concT = b.concMax; }   // concentrazioni iniziate con versioni precedenti
-  $("#concSlot").innerHTML = hpChip(b) + (cs ? `<span class="conc-chip" role="status">
+  renderHpBar(b);
+  $("#concSlot").innerHTML = (cs ? `<span class="conc-chip" role="status">
       <button class="turns${b.concT ? "" : " out"}" data-act="conc-turn" data-d="-1" aria-label="${b.concT ? `Turno passato: ne restano ${turnsText(b.concT)}` : "Durata finita"}" title="Tocca a ogni turno passato">⏳ ${b.concT}</button>
       <button class="open" data-act="conc-panel" title="Turni e dettagli della concentrazione"><span class="dot" aria-hidden="true"></span><span class="lab">Concentrazione:</span> <span class="nm">${esc(cs.n)}</span></button>
       <button class="end" data-act="conc-end" aria-label="Termina la concentrazione">Termina</button></span>` : "");
@@ -1430,7 +1456,7 @@ function sheetHTML(b){
         <div class="sh-hp"><button class="pm" data-act="sh-hp" data-d="-1" aria-label="Perdi 1 punto ferita">−</button>${num("hp.cur", b.hp.cur, "Punti ferita attuali", "cur")}<button class="pm" data-act="sh-hp" data-d="1" aria-label="Recupera 1 punto ferita">+</button>
           <span class="of">su</span>${num("hp.max", b.hp.max, "Punti ferita massimi", "small")}</div>
         <div class="sh-hp"><span class="of">Temporanei</span>${num("hp.tmp", b.hp.tmp, "Punti ferita temporanei", "small")}</div>
-        <button class="btn soft" data-act="hp-panel">♥ Danno, cura, temporanei…</button></div>
+        <button class="btn soft" data-act="hp-panel">Dettagli punti ferita…</button></div>
       <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}</div>
       <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shMod(b.ab.des))}</b></div>
       <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(r ? r.speed : "9 m")}" aria-label="Velocità"></div>
@@ -1487,19 +1513,23 @@ function setSheetField(b, f, v){
     if (part[1] === "n") a.n = String(v).trim().slice(0, 40) || a.n; else a.q = clamp(Number.isFinite(n) ? n : 0, 0, 99999); }
 }
 /* ---------- Punti ferita ---------- */
-let hpAmt = "", hpMode = "play";
 const hpPct = h => h.max ? Math.max(0, Math.min(100, Math.round(h.cur / h.max * 100))) : 0;
-const hpColor = p => p > 50 ? "#2E8B57" : p > 25 ? "#D9A21B" : "#D64545";
-function hpChip(b){
-  const h = b.hp, p = hpPct(h), down = h.max > 0 && h.cur <= 0;
-  return `<button class="hp-chip${down ? " down" : ""}" data-act="hp-panel" aria-label="Punti ferita: ${h.cur} su ${h.max}${h.tmp ? `, più ${h.tmp} temporanei` : ""}. Tocca per danni e cure">`
-    + `<span class="h" aria-hidden="true">♥</span>${h.max ? `${h.cur}/${h.max}` : "PF"}${h.tmp ? `<span class="t">+${h.tmp}</span>` : ""}`
-    + `${h.max ? `<span class="hb" aria-hidden="true"><i style="width:${p}%;background:${hpColor(p)}"></i></span>` : ""}</button>`;
+/* Verde a piena salute, giallo a metà, rosso quando sei messo male: il colore scorre con i danni subiti. */
+const hpColor = p => `hsl(${Math.round(p * 1.25)}, 62%, ${p > 50 ? 42 : 46}%)`;
+function renderHpBar(b){
+  const bar = document.getElementById("hpBar"), w = document.getElementById("hpw"); if (!bar || !w) return;
+  const h = b.hp, p = hpPct(h), tp = h.max ? Math.min(100 - p, Math.round(h.tmp / h.max * 100)) : 0;
+  w.classList.toggle("setup", !h.max);
+  const inp = document.getElementById("hpIn"); if (inp) inp.placeholder = h.max ? "PF" : "Max";
+  bar.setAttribute("aria-label", h.max ? `Punti ferita ${h.cur} su ${h.max}${h.tmp ? `, più ${h.tmp} temporanei` : ""}. Tocca per i dettagli` : "Punti ferita non ancora impostati");
+  bar.innerHTML = h.max
+    ? `<span class="fill" style="width:${p}%;background-color:${hpColor(p)}"></span><span class="tmpf" style="left:${p}%;width:${tp}%"></span>
+       <span class="txt"><span class="pill"><span class="hrt" aria-hidden="true">♥</span>${h.cur} / ${h.max}${h.tmp ? `<span class="tp">+${h.tmp}</span>` : ""}${h.cur <= 0 ? `<span class="st">a terra</span>` : ""}</span></span>`
+    : `<span class="txt"><span class="pill"><span class="hrt" aria-hidden="true">♥</span>Punti ferita</span></span>`;
 }
-const HP_LOG = { d:"−", h:"+", t:"temp +", m:"max " };
+const HP_LOG = { d:"−", h:"+", t:"temp ", m:"max " };
 function hpView(b){
   const h = b.hp, p = hpPct(h), tp = h.max ? Math.min(100 - p, Math.round(h.tmp / h.max * 100)) : 0;
-  if (hpMode === "max") return `<div id="hpv"></div>`;
   return `<div id="hpv" aria-live="polite">
     <div class="hpbar" aria-hidden="true"><i style="width:${p}%;background:${hpColor(p)}"></i><i class="tm" style="width:${tp}%"></i></div>
     <div class="hpnums"><span class="big">${h.cur}</span><span class="of">/ ${h.max}</span>${h.tmp ? `<span class="tmpb">+${h.tmp} temporanei</span>` : ""}</div>
@@ -1510,37 +1540,17 @@ function hpView(b){
     ${b.hpLog.length ? `<div class="hplog"><span>Ultime: ${b.hpLog.slice(-4).reverse().map(e => `<b class="${e.k}">${HP_LOG[e.k]}${e.n}</b>`).join(" · ")}</span><button class="btn" data-act="hp-undo">↶ Annulla</button></div>` : ""}
   </div>`;
 }
-function hpKeypad(){
-  return `<div class="hp-amt"><span class="lab">${hpMode === "max" ? "Massimi" : "Quanti?"}</span><output id="hpAmtView" class="zero">0</output></div>
-    <div class="kp">${["1", "2", "3", "4", "5", "6", "7", "8", "9"].map(k => `<button data-act="hp-key" data-k="${k}">${k}</button>`).join("")}
-      <button class="fn" data-act="hp-key" data-k="C">Azzera</button><button data-act="hp-key" data-k="0">0</button><button class="fn" data-act="hp-key" data-k="B" aria-label="Cancella l'ultima cifra">⌫</button></div>`;
+function openHpPanel(){
+  const b = book(), num = (k, v, l) => `<label>${l}<input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" data-hp2="${k}" value="${v}"></label>`;
+  openSheet(`<h2 tabindex="-1" autofocus>Punti ferita</h2>${hpView(b)}
+    <div class="hp-set2">${num("max", b.hp.max, "Massimi")}${num("tmp", b.hp.tmp, "Temporanei")}</div>
+    <p class="note" style="margin:12px 0 0">Danni e cure si segnano dalla barra in alto: scrivi il numero e tocca <b>Danno</b> o <b>Cura</b>. I danni tolgono prima i temporanei.</p>
+    <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
 }
-function openHpPanel(mode){
-  const b = book();
-  hpMode = mode || (b.hp.max ? "play" : "max");
-  hpAmt = hpMode === "max" && b.hp.max ? String(b.hp.max) : "";
-  openSheet(hpMode === "max"
-    ? `<h2 tabindex="-1" autofocus>Punti ferita massimi</h2>
-      <p>${b.hp.max ? "Scrivi i nuovi punti ferita massimi (per esempio dopo un passaggio di livello)." : "Quanti punti ferita massimi ha il personaggio? Si fa una volta sola: poi segni solo danni e cure."}</p>
-      ${hpView(b)}${hpKeypad()}
-      <div class="hp-row"><button class="btn primary hp-act" data-act="hp-setmax">Imposta i massimi</button></div>
-      <div class="sheet-foot"><button class="btn" data-act="${b.hp.max ? "hp-back" : "sheet-close"}">${b.hp.max ? "Indietro" : "Chiudi"}</button></div>`
-    : `<h2 tabindex="-1" autofocus>Punti ferita</h2>${hpView(b)}${hpKeypad()}
-      <div class="hp-row"><button class="btn dmg hp-act" data-act="hp-dmg">− Danno</button><button class="btn heal hp-act" data-act="hp-heal">+ Cura</button></div>
-      <div class="hp-row" style="margin-top:8px"><button class="btn tmp hp-act" data-act="hp-tmp">+ Punti ferita temporanei</button></div>
-      <div class="hp-foot"><span>I danni tolgono prima i temporanei.</span><button class="btn" data-act="hp-max">Massimi: ${b.hp.max} ✎</button></div>
-      <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
-  hpAmtRefresh();
-}
-function hpAmtRefresh(){
-  const o = document.getElementById("hpAmtView"); if (!o) return;
-  o.textContent = hpAmt || "0"; o.classList.toggle("zero", !hpAmt);
-  document.querySelectorAll("#sheet .hp-act").forEach(x => { x.disabled = !hpAmt || +hpAmt === 0; });
-}
-function hpKey(k){
-  if (k === "C") hpAmt = ""; else if (k === "B") hpAmt = hpAmt.slice(0, -1);
-  else if (hpAmt.length < 4) hpAmt = (hpAmt + k).replace(/^0+/, "");
-  hpAmtRefresh();
+function hpReadInput(){
+  const i = document.getElementById("hpIn"), n = parseInt(String(i && i.value).replace(/\D/g, ""), 10);
+  if (!Number.isFinite(n) || n <= 0){ if (i){ i.value = ""; i.focus(); } toast("Scrivi prima quanti punti ferita"); return 0; }
+  i.value = ""; i.blur(); return Math.min(n, 9999);
 }
 function hpLog(b, k, n){ b.hpLog.push({ k, n, p:{ cur:b.hp.cur, tmp:b.hp.tmp, max:b.hp.max, s:b.death.s, f:b.death.f } }); if (b.hpLog.length > 20) b.hpLog.shift(); }
 function hpDamage(b, n){
@@ -1551,7 +1561,6 @@ function hpDamage(b, n){
 }
 function hpHeal(b, n){ const h = b.hp; if (h.cur <= 0) b.death = { s:0, f:0 }; h.cur = h.max ? Math.min(h.max, h.cur + n) : h.cur + n; }
 function hpChanged(){ commit(); renderHeader(); renderSheet(); }
-function hpAfter(){ hpAmt = ""; hpChanged(); hpAmtRefresh(); }
 function openConcPanel(){
   openSheet(`<h2 tabindex="-1" autofocus>Concentrazione</h2>${concPanel(book())}
     <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
@@ -2195,18 +2204,11 @@ document.addEventListener("click", e => {
     case "sh-skill": { const k = el.dataset.k, l = ((b.skills[k] || 0) + 1) % 3; if (l) b.skills[k] = l; else delete b.skills[k]; commit(); renderSheet(); break; }
     case "sh-hp": { const d = Number(el.dataset.d); hpLog(b, d < 0 ? "d" : "h", 1); if (d < 0) hpDamage(b, 1); else hpHeal(b, 1); hpChanged(); break; }
     case "hp-panel": openHpPanel(); break;
-    case "hp-max": openHpPanel("max"); break;
-    case "hp-back": openHpPanel("play"); break;
-    case "hp-key": hpKey(el.dataset.k); break;
-    case "hp-dmg": { const n = +hpAmt; if (!n) break; hpLog(b, "d", n); const t = hpDamage(b, n); hpAfter();
+    case "hpw-dmg": { const n = hpReadInput(); if (!n) break; hpLog(b, "d", n); const t = hpDamage(b, n); hpChanged();
       const cs = b.conc ? getSpell(b.conc) : null;
       toast(`−${n} PF${t ? ` (${t} dai temporanei)` : ""}: ora ${b.hp.cur}/${b.hp.max}${cs ? ` · ${cs.n}: TS Costituzione CD ${Math.max(10, Math.floor(n / 2))}` : ""}`); break; }
-    case "hp-heal": { const n = +hpAmt; if (!n) break; hpLog(b, "h", n); hpHeal(b, n); hpAfter(); toast(`+${n} PF: ora ${b.hp.cur}/${b.hp.max}`); break; }
-    case "hp-tmp": { const n = +hpAmt; if (!n) break;
-      if (n <= b.hp.tmp){ hpAmt = ""; hpAmtRefresh(); toast(`Hai già ${b.hp.tmp} temporanei: non si sommano, tieni il valore più alto`); break; }
-      hpLog(b, "t", n); b.hp.tmp = n; hpAfter(); toast(`Punti ferita temporanei: ${n}`); break; }
-    case "hp-setmax": { const n = +hpAmt; if (!n) break; hpLog(b, "m", n); const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n;
-      hpChanged(); openHpPanel("play"); toast(`Punti ferita massimi: ${n}`); break; }
+    case "hpw-heal": { const n = hpReadInput(); if (!n) break; hpLog(b, "h", n); hpHeal(b, n); hpChanged(); toast(`+${n} PF: ora ${b.hp.cur}/${b.hp.max}`); break; }
+    case "hpw-set": { const n = hpReadInput(); if (!n) break; hpLog(b, "m", n); b.hp.max = n; b.hp.cur = n; hpChanged(); toast(`Punti ferita massimi: ${n}`); break; }
     case "hp-undo": { const e = b.hpLog.pop(); if (!e) break; Object.assign(b.hp, { cur:e.p.cur, tmp:e.p.tmp, max:e.p.max }); b.death = { s:e.p.s, f:e.p.f };
       hpChanged(); toast("Ultima modifica annullata"); break; }
     case "hp-death": { const k = el.dataset.k, i2 = +el.dataset.i; b.death[k] = b.death[k] === i2 + 1 ? i2 : i2 + 1; hpChanged(); break; }
@@ -2294,10 +2296,7 @@ document.addEventListener("click", e => {
   }
 });
 document.addEventListener("keydown", e => {
-  if (document.getElementById("hpAmtView") && !e.target.closest("input, textarea, select")){
-    if (/^[0-9]$/.test(e.key)){ hpKey(e.key); e.preventDefault(); return; }
-    if (e.key === "Backspace"){ hpKey("B"); e.preventDefault(); return; }
-  }
+  if (e.target.id === "hpIn" && e.key === "Enter"){ e.target.blur(); return; }
   if (e.key === "Escape"){ if (!$("#sheet").hidden) closeSheet(); else if (document.documentElement.classList.contains("detail-open")) closeDetail(); }
   if ((e.key === "Enter" || e.key === " ") && e.target.classList && e.target.classList.contains("row") && e.target.dataset.act === "open"){ e.preventDefault(); openDetail(e.target.dataset.kind || "s", e.target.dataset.id); }
 });
@@ -2320,6 +2319,9 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const t = e.target;
+  if (t.dataset && t.dataset.hp2){ const b = book(), n = Math.max(0, Math.min(9999, parseInt(String(t.value).replace(/\D/g, ""), 10) || 0)), k = t.dataset.hp2;
+    if (n !== b.hp[k]){ hpLog(b, k === "max" ? "m" : "t", n); if (k === "max"){ const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n; } else b.hp.tmp = n; hpChanged(); }
+    return; }
   if (t.dataset && t.dataset.f && t.closest(".sh")){ const b = book(); setSheetField(b, t.dataset.f, t.value); commit(); renderHeader(); renderSheet(); return; }
   if (t.id === "fSch"){ UI.sch = t.value; saveUI(); renderResults(); }
   if (t.id === "fSrc"){ UI.src = t.value; saveUI(); renderResults(); }
