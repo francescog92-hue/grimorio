@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 5cfd32";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · cbc1fe";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -872,7 +872,7 @@ function atkInfo(b, R, slot){
 }
 function atkBox(b, R, slot){
   const a = b.atk[slot], info = atkInfo(b, R, slot), lab = slot === "m" ? "Mischia" : "Distanza";
-  const opts = WEAPONS.filter(w => slot === "m" ? !w[4].includes("R") : (w[4].includes("R") || w[4].includes("T")));
+  const opts = WEAPONS.filter(w => slot === "m" ? !w[4].includes("R") && !w[5].endsWith("r") : (w[4].includes("R") || w[4].includes("T")));
   const grp = (g, t) => { const ws = opts.filter(w => w[5][0] === g); return ws.length ? `<optgroup label="${t}">${ws.map(w => `<option value="${w[0]}" ${w[0] === a.w ? "selected" : ""}>${esc(w[1])} (${w[2]})</option>`).join("")}</optgroup>` : ""; };
   return `<div class="sh-box atk"><span class="lab">${lab}</span>
     <div class="atk-sel"><select data-atk="${slot}.w" aria-label="Arma da ${lab.toLowerCase()}"><option value="">Scegli l'arma…</option>${grp("s", "Armi semplici")}${grp("m", "Armi da guerra")}</select>
