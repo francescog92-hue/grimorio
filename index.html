@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 3b0f00";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · 5cfd32";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -376,6 +376,17 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .bx-todo{font-size:12px;font-weight:800;color:var(--warn);text-transform:uppercase;letter-spacing:.06em}
 .migr{background:var(--warn-soft);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
 .migr p{margin:0;color:var(--ink)}
+.sh-box.atk{grid-column:span 2;gap:8px}
+.atk-sel{display:flex;gap:6px;flex-wrap:wrap}
+.atk-sel select{height:40px;border-radius:10px;border:1px solid var(--pill-dark);background:var(--pill-dark);color:#fff;color-scheme:dark;padding:0 8px;font:inherit;font-weight:700;font-size:14px;min-width:0;flex:1 1 140px}
+.atk-sel select[data-atk$=".mg"]{flex:0 1 120px}
+.atk-v{display:flex;gap:18px;align-items:baseline;flex-wrap:wrap}
+.atk-v span{display:flex;align-items:baseline;gap:6px}
+.atk-v small{font-size:12px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
+.atk-v b{font-size:24px;font-variant-numeric:tabular-nums}
+.atk-v em{font-style:normal;color:var(--ink-2);font-weight:700;font-size:14px}
+.atk-n{font-size:13px;color:var(--ink-2);line-height:1.45}
+@media (max-width:560px){ .sh-box.atk{grid-column:1 / -1} }
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
 .sh-am{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .am-row{display:flex;align-items:center;gap:8px}
@@ -617,7 +628,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -649,6 +660,7 @@ function normBook(o){
     b.ch[k] = { m:num(c.m, 0, 9, 0), a:Array.isArray(c.a) ? c.a.map(x => String(x)).slice(0, 4) : [], s:Array.isArray(c.s) ? c.s.map(x => String(x)).slice(0, 4) : [], e:typeof c.e === "string" ? c.e : "" }; }
   b.hideSecs = {}; if (o.hideSecs && typeof o.hideSecs === "object") for (const k of ["sheet", "spells", "trait", "feat"]) if (o.hideSecs[k]) b.hideSecs[k] = 1;
   b.v20 = o.v20 ? 1 : 0;
+  for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0) }; }
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
   b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
     .map(e => ({ k:e.k, n:num(e.n, 0, 9999, 0), p:{ cur:num(e.p.cur, 0, 9999, 0), tmp:num(e.p.tmp, 0, 9999, 0), max:num(e.p.max, 0, 9999, 0), s:num(e.p.s, 0, 3, 0), f:num(e.p.f, 0, 3, 0) } })) : [];
@@ -704,6 +716,12 @@ const FX = {
   "lad-swashbuckler-3-audacia-temeraria":{ initAb:"car" }, "mag-warmagic-2-saggezza-tattica":{ initAb:"int" },
   "ran-gloomstalker-3-agguato-terrificante":{ initAb:"sag" }, "pal-watchers-7-aura-della-sentinella":{ initProf:true },
   "dwarf-hill-robustezza-nanica":{ hpLvl:1 },
+  "gue-1-stile-di-combattimento":{ style:["archery", "defense", "dueling", "gwf", "protection", "twf"] },
+  "pal-2-stile-di-combattimento":{ style:["defense", "dueling", "gwf", "protection"] },
+  "ran-2-stile-di-combattimento":{ style:["archery", "defense", "dueling", "twf"] },
+  "mon-1-arti-marziali":{ martial:true }, "bar-1-ira":{ rage:true }, "lad-1-attacco-furtivo":{ sneak:true },
+  "pal-2-punizione-divina":{ smite:true }, "pal-11-punizione-divina-migliorata":{ smite2:true },
+  "gue-champion-3-critico-migliorato":{ crit:19 }, "gue-champion-15-critico-superiore":{ crit:18 },
   "lizardfolk-armatura-naturale":{ ac:{ base:13, ab:["des"], n:"Armatura Naturale" } }, "tortle-armatura-naturale":{ ac:{ base:17, ab:[], n:"Guscio" } },
   "elf-sensi-acuti":{ skills:["percezione"] }, "eladrin-sensi-acuti":{ skills:["percezione"] }, "harengon-sensi-leporini":{ skills:["percezione"] },
   "harengon-riflessi-della-lepre":{ initProf:true }, "halforc-minaccioso":{ skills:["intimidire"] }, "bugbear-furtivo":{ skills:["furtivita"] },
@@ -788,12 +806,81 @@ function bonusInfo(b){
     if (fx.speedMonk) R.speedMonk = true;
     if (fx.hpLvl) R.hpLvl += fx.hpLvl;
     if (fx.passive) R.passive += fx.passive;
-    ["jack", "athlete", "allSaves", "saveCha", "cap24"].forEach(f => { if (fx[f]) R[f] = true; });
+    ["jack", "athlete", "allSaves", "saveCha", "cap24", "martial", "rage", "sneak", "smite", "smite2"].forEach(f => { if (fx[f]) R[f] = true; });
+    if (fx.crit) R.crit = Math.min(R.crit || 20, fx.crit);
+    if (fx.style){ const st = ch.e; if (fx.style.includes(st)) R.style = st; else info.todo = true; info.picks.push({ t:"st", from:fx.style, v:st, lab:"Stile", labels:STYLE_N }); }
     if (fx.ac) R.ac.push(fx.ac);
     if (info.todo) R.todo++;
     R.sources.push(info);
   }
   return R;
+}
+/* Armi del Manuale del Giocatore: [id, nome, dado, tipo, proprietà, gruppo]. Proprietà: F accurata, L leggera, T lancio,
+   V<dado> versatile, 2 a due mani, H pesante, R a distanza (munizioni), U colpo senz'armi. Gruppo: s semplice, m da guerra (r = a distanza). */
+const WEAPONS = [
+  ["unarmed", "Colpo senz'armi", "1", "contundenti", "U", "s"], ["club", "Randello", "1d4", "contundenti", "L", "s"], ["dagger", "Pugnale", "1d4", "perforanti", "FLT", "s"],
+  ["greatclub", "Randello pesante", "1d8", "contundenti", "2", "s"], ["handaxe", "Ascia", "1d6", "taglienti", "LT", "s"], ["javelin", "Giavellotto", "1d6", "perforanti", "T", "s"],
+  ["lighthammer", "Martello leggero", "1d4", "contundenti", "LT", "s"], ["mace", "Mazza", "1d6", "contundenti", "", "s"],
+  ["quarterstaff", "Bastone ferrato", "1d6", "contundenti", "V1d8", "s"], ["sickle", "Falcetto", "1d4", "taglienti", "L", "s"], ["spear", "Lancia", "1d6", "perforanti", "TV1d8", "s"],
+  ["lightcrossbow", "Balestra leggera", "1d8", "perforanti", "R2", "sr"], ["dart", "Dardo", "1d4", "perforanti", "FT", "sr"], ["shortbow", "Arco corto", "1d6", "perforanti", "R2", "sr"],
+  ["sling", "Fionda", "1d4", "contundenti", "R", "sr"],
+  ["battleaxe", "Ascia da battaglia", "1d8", "taglienti", "V1d10", "m"], ["flail", "Mazzafrusto", "1d8", "contundenti", "", "m"], ["glaive", "Falcione", "1d10", "taglienti", "H2", "m"],
+  ["greataxe", "Ascia bipenne", "1d12", "taglienti", "H2", "m"], ["greatsword", "Spadone", "2d6", "taglienti", "H2", "m"], ["halberd", "Alabarda", "1d10", "taglienti", "H2", "m"],
+  ["lance", "Lancia da cavaliere", "1d12", "perforanti", "", "m"], ["longsword", "Spada lunga", "1d8", "taglienti", "V1d10", "m"], ["maul", "Maglio", "2d6", "contundenti", "H2", "m"],
+  ["morningstar", "Morning star", "1d8", "perforanti", "", "m"], ["pike", "Picca", "1d10", "perforanti", "H2", "m"], ["rapier", "Stocco", "1d8", "perforanti", "F", "m"],
+  ["scimitar", "Scimitarra", "1d6", "taglienti", "FL", "m"], ["shortsword", "Spada corta", "1d6", "perforanti", "FL", "m"], ["trident", "Tridente", "1d6", "perforanti", "TV1d8", "m"],
+  ["warpick", "Piccone da guerra", "1d8", "perforanti", "", "m"], ["warhammer", "Martello da guerra", "1d8", "contundenti", "V1d10", "m"], ["whip", "Frusta", "1d4", "taglienti", "F", "m"],
+  ["blowgun", "Cerbottana", "1", "perforanti", "R", "mr"], ["handcrossbow", "Balestra a mano", "1d6", "perforanti", "RL", "mr"], ["heavycrossbow", "Balestra pesante", "1d10", "perforanti", "RH2", "mr"],
+  ["longbow", "Arco lungo", "1d8", "perforanti", "RH2", "mr"]
+];
+const WEAPON_BY = Object.fromEntries(WEAPONS.map(w => [w[0], w]));
+const STYLE_N = { archery:"Arciere (+2 a colpire a distanza)", defense:"Difesa (+1 CA con armatura)", dueling:"Duellare (+2 ai danni a una mano)",
+  gwf:"Armi Possenti (ritiri 1 e 2 ai danni)", protection:"Protezione", twf:"Due Armi (mod. ai danni della seconda arma)" };
+const dieSize = d => d === "1" ? 1 : parseInt(String(d).split("d")[1], 10) * parseInt(d, 10);
+const martialDie = lvl => lvl >= 17 ? "1d10" : lvl >= 11 ? "1d8" : lvl >= 5 ? "1d6" : "1d4";
+function atkInfo(b, R, slot){
+  const a = b.atk[slot], w = WEAPON_BY[a.w]; if (!w) return null;
+  const P = w[4], ammo = P.includes("R"), fin = P.includes("F"), thrown = P.includes("T"), two = P.includes("2"), heavy = P.includes("H");
+  const ranged = slot === "r";
+  const monkW = R.martial && (w[0] === "unarmed" || w[0] === "shortsword" || (w[5] === "s" && !two && !heavy));
+  const sMod = shMod(abv(b, "for", R)), dMod = shMod(abv(b, "des", R));
+  const useDex = ammo || ((fin || monkW) && dMod > sMod), mod = useDex ? dMod : sMod;
+  let die = w[2];
+  if (monkW && dieSize(martialDie(b.lvl)) > dieSize(die)) die = martialDie(b.lvl);
+  const pb = shProf(b), mg = a.mg || 0, notes = [];
+  const hit = mod + pb + mg + (ranged && ammo && R.style === "archery" ? 2 : 0);
+  const duel = !ranged && R.style === "dueling" && !two ? 2 : 0;
+  const dmg = mod + mg + duel;
+  const fmt = (d, n) => d === "1" ? String(Math.max(1, 1 + n)) : d + (n ? ` ${n > 0 ? "+" : "−"} ${Math.abs(n)}` : "");
+  let dstr = fmt(die, dmg);
+  if (!ranged && R.smite2) dstr += " + 1d8 radiosi";
+  const vm = P.match(/V(\d+d\d+)/);
+  if (vm && !ranged) notes.push(`A due mani: ${fmt(vm[1], mod + mg)}${R.smite2 ? " + 1d8 radiosi" : ""}`);
+  if (ranged && thrown && !ammo) notes.push("Arma da lancio: gittata breve, poi la recuperi");
+  if (monkW) notes.push(`Arti Marziali: dado ${martialDie(b.lvl)}, Forza o Destrezza; colpo senz'armi bonus con un'azione bonus`);
+  if (R.rage && !ranged && !useDex) notes.push(`In ira: +${b.lvl >= 16 ? 4 : b.lvl >= 9 ? 3 : 2} ai danni`);
+  if (R.sneak && (fin || ammo || ranged)) notes.push(`Attacco Furtivo: +${Math.ceil(b.lvl / 2)}d6 una volta per turno (con vantaggio o un alleato vicino al bersaglio)`);
+  if (R.smite && !ranged) notes.push("Punizione Divina: +2d8 radiosi spendendo uno slot (+1d8 per livello di slot in più, +1d8 contro non morti e immondi)");
+  if (R.style === "gwf" && !ranged && (two || vm)) notes.push("Armi Possenti: ritiri gli 1 e i 2 sui dadi dei danni (a due mani)");
+  if (R.style === "dueling" && !ranged && !two) notes.push("Duellare: +2 già incluso (nessun'altra arma impugnata)");
+  if (R.style === "archery" && ranged && ammo) notes.push("Arciere: +2 a colpire già incluso");
+  if (b.feats["sharpshooter"] && ranged && ammo) notes.push(`Tiratore Scelto: puoi fare ${shSign(hit - 5)} a colpire per +10 ai danni`);
+  if (b.feats["great-weapon-master"] && !ranged && heavy) notes.push(`Maestro delle Armi Possenti: puoi fare ${shSign(hit - 5)} a colpire per +10 ai danni`);
+  if (R.crit && R.crit < 20) notes.push(`Critico con ${R.crit}–20`);
+  if (mg) notes.push(`Arma magica +${mg} inclusa`);
+  return { w, hit, dmg:dstr, type:w[3], notes };
+}
+function atkBox(b, R, slot){
+  const a = b.atk[slot], info = atkInfo(b, R, slot), lab = slot === "m" ? "Mischia" : "Distanza";
+  const opts = WEAPONS.filter(w => slot === "m" ? !w[4].includes("R") : (w[4].includes("R") || w[4].includes("T")));
+  const grp = (g, t) => { const ws = opts.filter(w => w[5][0] === g); return ws.length ? `<optgroup label="${t}">${ws.map(w => `<option value="${w[0]}" ${w[0] === a.w ? "selected" : ""}>${esc(w[1])} (${w[2]})</option>`).join("")}</optgroup>` : ""; };
+  return `<div class="sh-box atk"><span class="lab">${lab}</span>
+    <div class="atk-sel"><select data-atk="${slot}.w" aria-label="Arma da ${lab.toLowerCase()}"><option value="">Scegli l'arma…</option>${grp("s", "Armi semplici")}${grp("m", "Armi da guerra")}</select>
+      <select data-atk="${slot}.mg" aria-label="Bonus magico dell'arma"><option value="0">non magica</option>${[1, 2, 3].map(n => `<option value="${n}" ${a.mg === n ? "selected" : ""}>+${n} magica</option>`).join("")}</select></div>
+    ${info ? `<div class="atk-v"><span><small>Colpire</small><b>${shSign(info.hit)}</b></span><span><small>Danni</small><b>${esc(info.dmg)}</b><em>${esc(info.type)}</em></span></div>
+      ${info.notes.length ? `<div class="atk-n">${info.notes.map(esc).join("<br>")}</div>` : ""}`
+      : `<div class="atk-n">Scegli l'arma: tiro per colpire e danni si calcolano da soli.</div>`}
+  </div>`;
 }
 function abv(b, k, R){
   R = R || bonusInfo(b);
@@ -1642,11 +1729,13 @@ function sheetHTML(b){
         <span class="sh-calc">${b.hp.auto && hpA ? `Massimi calcolati: ${esc(clsOf(b).hd)} + Costituzione${R.hpLvl ? ` + ${R.hpLvl} per livello` : ""}` : hpA ? `Calcolati sarebbero ${hpA}` : ""}</span>
         <button class="btn soft" data-act="hp-panel">Dettagli punti ferita…</button></div>
       <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}
-        ${acs.map(a => `<button class="btn soft" style="min-height:34px;font-size:13px" data-act="bx-ac" data-v="${a.v}">${esc(a.n)}: ${a.v}</button>`).join("")}</div>
+        ${acs.map(a => `<button class="btn soft" style="min-height:34px;font-size:13px" data-act="bx-ac" data-v="${a.v}">${esc(a.n)}: ${a.v}</button>`).join("")}
+        ${R.style === "defense" ? `<span class="sh-calc">Stile Difesa: +1 con l'armatura indossata</span>` : ""}</div>
       <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shInit(b, R))}</b></div>
       <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(shSpeed(b, R))}" aria-label="Velocità"><span class="sh-calc">${b.speed ? "scritta a mano" : "calcolata"}</span></div>
       <div class="sh-box"><span class="lab">Competenza</span><b>${shSign(pb)}</b></div>
       <div class="sh-box"><span class="lab">Percezione passiva</span><b>${perc}</b></div>
+      ${atkBox(b, R, "m")}${atkBox(b, R, "r")}
     </div>
 
     ${R.sources.length ? `<h3 class="sh-h">Bonus automatici${R.todo ? ` <span class="bx-todo">· ${R.todo} da scegliere</span>` : ""}</h3>
@@ -1660,8 +1749,10 @@ function sheetHTML(b){
       if (f.hpLvl) parts.push(`PF massimi +${f.hpLvl} per livello`); if (f.passive) parts.push(`Percezione e Indagare passivi +${f.passive}`);
       if (f.jack) parts.push("metà competenza alle prove senza competenza"); if (f.athlete) parts.push("metà competenza (arr. per eccesso) a Forza, Destrezza e Costituzione senza competenza");
       if (f.allSaves) parts.push("competenza in tutti i TS"); if (f.saveCha) parts.push("+ mod. di Carisma a tutti i TS");
+      if (f.martial) parts.push(`colpi senz'armi e armi da monaco con dado ${martialDie(b.lvl)}`); if (f.rage) parts.push("bonus ai danni in ira"); if (f.sneak) parts.push(`Attacco Furtivo ${Math.ceil(b.lvl / 2)}d6`);
+      if (f.smite) parts.push("Punizione Divina"); if (f.smite2) parts.push("+1d8 radiosi a ogni colpo in mischia"); if (f.crit) parts.push(`critico con ${f.crit}–20`);
       if (f.ac) parts.push(`CA senza armatura: ${f.ac.base}${f.ac.ab.length ? " + " + f.ac.ab.map(abN).join(" + ") : ""}`);
-      const sel = (pk) => `<select data-bx="${esc(x.src.key)}" data-t="${pk.t}" data-i="${pk.i || 0}" aria-label="${esc(pk.lab)}"><option value="">${pk.t === "a" ? pk.lab + "…" : pk.lab + "…"}</option>${pk.from.map(k => `<option value="${k}" ${k === pk.v ? "selected" : ""}>${pk.t === "a" ? abN(k) : skN(k)}</option>`).join("")}</select>`;
+      const sel = (pk) => `<select data-bx="${esc(x.src.key)}" data-t="${pk.t}" data-i="${pk.i || 0}" aria-label="${esc(pk.lab)}"><option value="">${pk.t === "a" ? pk.lab + "…" : pk.lab + "…"}</option>${pk.from.map(k => `<option value="${k}" ${k === pk.v ? "selected" : ""}>${pk.labels ? pk.labels[k] : pk.t === "a" ? abN(k) : skN(k)}</option>`).join("")}</select>`;
       const mode = x.mode && (x.mode.pats.length > 1 || x.mode.asi) ? `<select data-bx="${esc(x.src.key)}" data-t="m" aria-label="Come distribuire">${x.mode.pats.map((pt, i) => `<option value="${i}" ${i === x.mode.m ? "selected" : ""}>${({ "2":"+2 a una caratteristica", "1,1":"+1 a due caratteristiche", "2,1":"+2 a una e +1 a un'altra", "1,1,1":"+1 a tre caratteristiche" })[pt.join(",")] || pt.map(n => "+" + n).join(" e ")}</option>`).join("")}${x.mode.asi ? `<option value="${x.mode.pats.length}" ${x.mode.m === x.mode.pats.length ? "selected" : ""}>Talento al suo posto</option>` : ""}</select>` : "";
       return `<div class="bx-row${x.todo ? " todo" : ""}"><div class="bx-h"><b>${esc(x.src.n)}</b><span class="sh-calc">${esc(x.src.kind)}${x.todo ? ` · <span class="bx-todo">da scegliere</span>` : ""}</span></div>
         ${parts.length ? `<div class="bx-fx">${parts.join(" · ")}</div>` : ""}
@@ -2540,6 +2631,8 @@ document.addEventListener("change", e => {
   if (t.dataset && t.dataset.hp2){ const b = book(), n = Math.max(0, Math.min(9999, parseInt(String(t.value).replace(/\D/g, ""), 10) || 0)), k = t.dataset.hp2;
     if (n !== b.hp[k]){ hpLog(b, k === "max" ? "m" : "t", n); if (k === "max"){ const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n; } else b.hp.tmp = n; hpChanged(); }
     return; }
+  if (t.dataset && t.dataset.atk){ const b = book(), [slot, f] = t.dataset.atk.split(".");
+    b.atk[slot][f] = f === "mg" ? +t.value || 0 : t.value; commit(); renderSheet(); return; }
   if (t.dataset && t.dataset.bx){ const b = book(), key = t.dataset.bx, c = b.ch[key] = b.ch[key] || { m:0, a:[], s:[], e:"" }, i = +t.dataset.i || 0;
     if (t.dataset.t === "m"){ c.m = +t.value || 0; c.a = []; } else if (t.dataset.t === "a") c.a[i] = t.value; else if (t.dataset.t === "s") c.s[i] = t.value; else c.e = t.value;
     commit(); renderHeader(); renderSheet(); return; }

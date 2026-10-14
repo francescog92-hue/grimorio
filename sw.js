@@ -1,5 +1,5 @@
 /* Grimorio: funzionamento offline. La versione cambia a ogni aggiornamento dell'app. */
-const CACHE = "grimorio-d43b5e380230";
+const CACHE = "grimorio-2c43f58f6a1a";
 const FILES = [
   "./",
   "index.html",
