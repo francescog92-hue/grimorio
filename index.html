@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "14/10/2026 · cbc1fe";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "17/10/2026 · c74ba7";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -397,6 +397,23 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .am-foot{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink-2);font-size:14px}
 .am-add{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 @media (max-width:560px){ .sh-box.hp{grid-column:1 / -1} .sh-abs{grid-template-columns:repeat(2,1fr)} .am-row{flex-wrap:wrap} .am-row .am-n{flex-basis:calc(100% - 48px)} .am-use{flex:1} }
+.rage-chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:3px 4px;border-radius:999px;background:linear-gradient(90deg,#9E1B14,#E0452B);color:#fff;font-weight:800;font-size:15px;max-width:100%;animation:ragePulse 1.5s ease-in-out infinite}
+.rage-chip button{border:0;background:transparent;color:inherit;font-weight:800;min-height:34px;padding:0 8px;cursor:pointer}
+.rage-chip .turns{background:#fff;color:#9E1B14;border-radius:999px;min-width:44px;height:34px;padding:0 10px;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+.rage-chip .end{background:#fff;color:#9E1B14;border-radius:999px;padding:0 12px;white-space:nowrap;flex:none}
+.rage-chip .open{display:inline-flex;align-items:center;gap:6px;min-width:0;flex:1 1 auto;white-space:nowrap}
+@keyframes ragePulse{0%,100%{box-shadow:0 0 0 0 rgba(224,69,43,.6)}50%{box-shadow:0 0 0 8px rgba(224,69,43,0)}}
+.rp .cp-num{color:#D64545}
+.rp-list{margin:12px 0 0;padding-left:20px;color:var(--ink-2);font-size:15px}
+.rp-list li{margin:4px 0}
+.rp-uses{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:-8px;margin-bottom:14px;color:var(--ink-2);font-weight:700}
+.rp-uses i{width:14px;height:14px;border-radius:50%;background:#D64545;display:inline-block}
+.rp-uses i.off{background:none;border:2px solid var(--line-2)}
+.btn.rage{background:linear-gradient(90deg,#9E1B14,#E0452B);border-color:#9E1B14;color:#fff}
+.rest-p{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.rest-p .btn-row .btn{flex:1 1 140px}
+.rest-p .note{margin:0}
+@media (max-width:560px){ #concSlot .rage-chip{flex:1 1 auto;min-width:0} }
 @keyframes concIn{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.04);opacity:1}100%{transform:none}}
 .d-conc{background:var(--accent-soft);border:2px solid var(--accent);border-radius:12px;padding:12px 14px;margin:14px 0}
 .d-conc h4{margin:0 0 4px;color:var(--accent);font-size:13px;letter-spacing:.1em;text-transform:uppercase}
@@ -628,7 +645,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, rage:{ on:false, t:0, used:0 }, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -660,6 +677,7 @@ function normBook(o){
     b.ch[k] = { m:num(c.m, 0, 9, 0), a:Array.isArray(c.a) ? c.a.map(x => String(x)).slice(0, 4) : [], s:Array.isArray(c.s) ? c.s.map(x => String(x)).slice(0, 4) : [], e:typeof c.e === "string" ? c.e : "" }; }
   b.hideSecs = {}; if (o.hideSecs && typeof o.hideSecs === "object") for (const k of ["sheet", "spells", "trait", "feat"]) if (o.hideSecs[k]) b.hideSecs[k] = 1;
   b.v20 = o.v20 ? 1 : 0;
+  b.rage = { on:!!(o.rage && o.rage.on), t:num(o.rage && o.rage.t, 0, 99, 0), used:num(o.rage && o.rage.used, 0, 99, 0) };
   for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0) }; }
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
   b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
@@ -850,7 +868,7 @@ function atkInfo(b, R, slot){
   const pb = shProf(b), mg = a.mg || 0, notes = [];
   const hit = mod + pb + mg + (ranged && ammo && R.style === "archery" ? 2 : 0);
   const duel = !ranged && R.style === "dueling" && !two ? 2 : 0;
-  const dmg = mod + mg + duel;
+  const rageOn = R.rage && b.rage.on && !ranged && !useDex, dmg = mod + mg + duel + (rageOn ? rageDmg(b.lvl) : 0);
   const fmt = (d, n) => d === "1" ? String(Math.max(1, 1 + n)) : d + (n ? ` ${n > 0 ? "+" : "−"} ${Math.abs(n)}` : "");
   let dstr = fmt(die, dmg);
   if (!ranged && R.smite2) dstr += " + 1d8 radiosi";
@@ -858,7 +876,7 @@ function atkInfo(b, R, slot){
   if (vm && !ranged) notes.push(`A due mani: ${fmt(vm[1], mod + mg)}${R.smite2 ? " + 1d8 radiosi" : ""}`);
   if (ranged && thrown && !ammo) notes.push("Arma da lancio: gittata breve, poi la recuperi");
   if (monkW) notes.push(`Arti Marziali: dado ${martialDie(b.lvl)}, Forza o Destrezza; colpo senz'armi bonus con un'azione bonus`);
-  if (R.rage && !ranged && !useDex) notes.push(`In ira: +${b.lvl >= 16 ? 4 : b.lvl >= 9 ? 3 : 2} ai danni`);
+  if (R.rage && !ranged && !useDex) notes.push(rageOn ? `🔥 In ira: +${rageDmg(b.lvl)} già sommato` : `In ira: +${rageDmg(b.lvl)} ai danni`);
   if (R.sneak && (fin || ammo || ranged)) notes.push(`Attacco Furtivo: +${Math.ceil(b.lvl / 2)}d6 una volta per turno (con vantaggio o un alleato vicino al bersaglio)`);
   if (R.smite && !ranged) notes.push("Punizione Divina: +2d8 radiosi spendendo uno slot (+1d8 per livello di slot in più, +1d8 contro non morti e immondi)");
   if (R.style === "gwf" && !ranged && (two || vm)) notes.push("Armi Possenti: ritiri gli 1 e i 2 sui dadi dei danni (a due mani)");
@@ -1190,11 +1208,12 @@ function renderHeader(){
   const cs = b.conc ? getSpell(b.conc) : null;
   if (cs && !b.concMax){ b.concMax = durationTurns(cs); b.concT = b.concMax; }   // concentrazioni iniziate con versioni precedenti
   renderHpBar(b);
-  $("#concSlot").innerHTML = (cs ? `<span class="conc-chip" role="status">
+  $("#concSlot").innerHTML = rageChip(b) + (cs ? `<span class="conc-chip" role="status">
       <button class="turns${b.concT ? "" : " out"}" data-act="conc-turn" data-d="-1" aria-label="${b.concT ? `Turno passato: ne restano ${turnsText(b.concT)}` : "Durata finita"}" title="Tocca a ogni turno passato">⏳ ${b.concT}</button>
       <button class="open" data-act="conc-panel" title="Turni e dettagli della concentrazione"><span class="dot" aria-hidden="true"></span><span class="lab">Concentrazione:</span> <span class="nm">${esc(cs.n)}</span></button>
       <button class="end" data-act="conc-end" aria-label="Termina la concentrazione">Termina</button></span>` : "");
   const cp = document.querySelector("#sheet .cp"); if (cp) cp.outerHTML = concPanel(b);
+  const rp = document.querySelector("#sheet .rp"); if (rp) rp.outerHTML = ragePanel(b);
   const hv = document.getElementById("hpv"); if (hv) hv.outerHTML = hpView(b);
   const feats = Object.keys(b.feats).length;
   const counts = { spells:readyCount(b), feat:feats };
@@ -1330,8 +1349,7 @@ function traitTop(b){
     <label class="field-pill cls-pill sub-pill"><span class="lab">Background</span><select id="bgSel" aria-label="Background"><option value="">— Nessuno —</option>${BGS.map(x => `<option value="${x.id}" ${x.id === b.bg ? "selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label>
     ${g ? `<dl class="bg-facts"><div><dt>Abilità</dt><dd>${esc(g.sk)}</dd></div><div><dt>Strumenti</dt><dd>${esc(g.tools)}</dd></div><div><dt>Lingue</dt><dd>${esc(g.lang)}</dd></div><div><dt>Equipaggiamento</dt><dd>${esc(g.eq)}</dd></div></dl>` : `<p class="note">Il background dà due abilità, strumenti o lingue, un equipaggiamento iniziale e un privilegio.</p>`}</div>`;
   const kinds = [["", "Tutti"], ["race", "Specie"], ["class", "Classe"], ["sub", "Sottoclasse"], ["bg", "Background"], ["custom", "Personalizzati"]];
-  return bgPanel + `<div class="panel"><div class="panel-h"><h3>Riposi</h3><div class="btn-row"><button class="btn" data-act="rest" data-v="short">Riposo breve</button><button class="btn" data-act="rest" data-v="long">Riposo lungo</button></div></div>
-      <p class="note" style="margin:0">Ripristinano gli usi dei privilegi e dei talenti (quelli che hai configurato) e gli slot incantesimo.</p></div>
+  return bgPanel + `<p class="note" style="margin:0 0 12px">I riposi breve e lungo sono nella <b>Scheda</b>: ripristinano anche gli usi dei privilegi configurati qui.</p>
     <div class="filters"><div class="chips">${kinds.map(([k, t]) => `<button class="chip${UI.fKind === k ? " on" : ""}" data-act="fkind" data-v="${k}" aria-pressed="${UI.fKind === k}">${t}</button>`).join("")}
       <button class="chip${UI.future ? " on" : ""}" data-act="ftoggle" data-k="future" aria-pressed="${UI.future}">Anche i livelli futuri</button>
       <button class="chip${UI.tasha ? " on" : ""}" data-act="ftoggle" data-k="tasha" aria-pressed="${UI.tasha}">Opzioni di Tasha</button></div></div>
@@ -1680,7 +1698,58 @@ function durationTurns(s){
   return n * (u === "round" || u === "turn" ? 1 : u === "minut" ? 10 : u.startsWith("or") ? 600 : 14400);
 }
 const turnsText = n => n === 1 ? "1 turno" : `${n} turni`;
+/* ---------- Ira del barbaro ---------- */
+const rageMax = lvl => lvl >= 20 ? Infinity : lvl >= 17 ? 6 : lvl >= 12 ? 5 : lvl >= 6 ? 4 : lvl >= 3 ? 3 : 2;
+const rageDmg = lvl => lvl >= 16 ? 4 : lvl >= 9 ? 3 : 2;
+const isBarb = b => b.cls === "bar";
+function rageChip(b){
+  if (!b.rage.on) return "";
+  return `<span class="rage-chip" role="status">
+    <button class="turns" data-act="rage-turn" data-d="-1" aria-label="Turno passato: restano ${turnsText(b.rage.t)} di ira" title="Tocca a ogni turno passato">⏳ ${b.rage.t}</button>
+    <button class="open" data-act="rage-panel" title="Turni e promemoria dell'ira">🔥 In ira</button>
+    <button class="end" data-act="rage-end" aria-label="Termina l'ira">Termina</button></span>`;
+}
+function ragePanel(b){
+  const max = rageMax(b.lvl), left = max === Infinity ? Infinity : Math.max(0, max - b.rage.used), sub = subOf(b);
+  const subNotes = sub ? sub.f.filter(f => f.l <= b.lvl && /\bir[ae]\b/i.test(f.x)).map(f => f.n) : [];
+  const uses = max === Infinity ? `<div class="rp-uses">Usi illimitati (20° livello)</div>`
+    : `<div class="rp-uses">${Array.from({ length:max }, (_, i) => `<i class="${i < left ? "" : "off"}"></i>`).join("")} <span>${left} di ${max} usi rimasti · tornano con un riposo lungo</span></div>`;
+  if (!b.rage.on) return `<div class="rp">${uses}<p style="text-align:center">Non sei in ira.</p>
+    <div class="cp-row"><span class="grow"></span><button class="btn rage" data-act="rage-start" ${left ? "" : "disabled"}>🔥 Entra in ira</button><span class="grow"></span></div></div>`;
+  const t = b.rage.t;
+  return `<div class="rp">
+    <div class="cp-count" aria-live="polite"><span class="cp-num">${t}</span><span class="cp-lab">${t === 1 ? "turno rimasto" : "turni rimasti"} (dura 1 minuto)</span></div>
+    ${uses}
+    <div class="cp-row">
+      <button class="btn danger" data-act="rage-end">Termina</button><span class="grow"></span>
+      <button class="btn" data-act="rage-turn" data-d="1" aria-label="Aggiungi un turno">+1</button>
+      <button class="btn rage turn" data-act="rage-turn" data-d="-1">Turno passato −1</button>
+    </div>
+    <ul class="rp-list">
+      <li><b>Vantaggio</b> alle prove e ai tiri salvezza di Forza.</li>
+      <li><b>+${rageDmg(b.lvl)} ai danni</b> degli attacchi in mischia con la Forza (già sommato nel riquadro Mischia della Scheda).</li>
+      <li><b>Resistenza</b> ai danni contundenti, perforanti e taglienti: dimezzali prima di segnarli.</li>
+      <li><b>Niente incantesimi</b> e niente concentrazione finché sei in ira.</li>
+      <li>${b.lvl >= 15 ? "<b>Ira Persistente:</b> finisce prima solo se perdi i sensi o scegli di terminarla." : "Finisce prima se nel tuo turno non attacchi una creatura ostile e non subisci danni, o se perdi i sensi."}</li>
+      ${b.lvl >= 11 ? `<li><b>Ira Implacabile:</b> se scendi a 0 PF, TS su Costituzione CD 10 (+5 a ogni uso) per restare a 1 PF.</li>` : ""}
+      <li>Non funziona con l'armatura pesante.</li>
+      ${subNotes.length ? `<li>Dalla sottoclasse: ${subNotes.map(esc).join(", ")} (vedi Privilegi).</li>` : ""}
+    </ul></div>`;
+}
+function openRagePanel(){
+  openSheet(`<h2 tabindex="-1" autofocus>🔥 Ira</h2>${ragePanel(book())}
+    <div class="sheet-foot"><button class="btn" data-act="sheet-close">Chiudi</button></div>`);
+}
+function startRage(b){
+  const max = rageMax(b.lvl);
+  if (max !== Infinity && b.rage.used >= max) return "Nessun uso di ira rimasto: tornano con un riposo lungo";
+  const cs = b.conc ? getSpell(b.conc) : null;
+  b.rage = { on:true, t:10, used:b.rage.used + (max === Infinity ? 0 : 1) };
+  if (cs){ b.conc = ""; b.concT = b.concMax = 0; }
+  return `🔥 In ira! +${rageDmg(b.lvl)} ai danni in mischia${cs ? ` · la concentrazione su ${cs.n} termina` : ""}`;
+}
 function startConc(b, s){
+  if (b.rage && b.rage.on) return "Sei in ira: non puoi lanciare incantesimi né concentrarti";
   const prev = b.conc && b.conc !== s.id ? getSpell(b.conc) : null;
   b.conc = s.id; b.concMax = durationTurns(s); b.concT = b.concMax;
   return prev ? `${prev.n} termina: ora ti concentri su ${s.n}` : `Concentrazione su ${s.n}`;
@@ -1719,6 +1788,12 @@ function sheetHTML(b){
   const abN = k => (SH_ABS.find(x => x[0] === k) || [k, k])[1];
   const legacy = !b.v20 && R.sources.some(x => x.src.kind === "Specie" && Object.keys(x.src.fx.ab || {}).length);
   return `<div class="sh">
+    <div class="rest-p">
+      <div class="btn-row"><button class="btn" data-act="rest" data-v="short">☕ Riposo breve</button><button class="btn primary" data-act="rest-long">🌙 Riposo lungo</button>
+        ${isBarb(b) ? (b.rage.on ? `<button class="btn rage" data-act="rage-panel">🔥 In ira · ${turnsText(b.rage.t)}</button>`
+          : `<button class="btn rage" data-act="rage-start" ${rageMax(b.lvl) !== Infinity && b.rage.used >= rageMax(b.lvl) ? "disabled" : ""}>🔥 Entra in ira · ${rageMax(b.lvl) === Infinity ? "∞" : `${Math.max(0, rageMax(b.lvl) - b.rage.used)}/${rageMax(b.lvl)}`}</button>`) : ""}</div>
+      <p class="note">Riposo lungo: tutti i PF, slot, ${isBarb(b) ? "ira, " : ""}usi dei privilegi; finisce la concentrazione. Riposo breve: slot del patto e usi «a riposo breve».</p>
+    </div>
     ${legacy ? `<div class="migr"><p><b>Novità:</b> i bonus di specie e talenti ora si aggiungono da soli ai punteggi. Se li avevi già inseriti nei punteggi, toglili: altrimenti verrebbero contati due volte.</p>
       <div class="btn-row"><button class="btn primary" data-act="bx-migr" data-v="sub">Togli i bonus dai punteggi base</button><button class="btn" data-act="bx-migr" data-v="ok">I punteggi erano già senza bonus</button></div></div>` : ""}
     <div class="sh-top">
@@ -1876,11 +1951,15 @@ function cast(id, kind, lv){
 }
 function rest(kind){
   const b = book();
-  if (kind === "long"){ b.used = [0,0,0,0,0,0,0,0,0]; b.arc = {}; b.conc = ""; }
+  if (kind === "long"){
+    b.used = [0,0,0,0,0,0,0,0,0]; b.arc = {}; b.conc = ""; b.concT = b.concMax = 0;
+    if (b.hp.max){ hpLog(b, "h", Math.max(0, b.hp.max - b.hp.cur)); b.hp.cur = b.hp.max; }
+    b.hp.tmp = 0; b.death = { s:0, f:0 }; b.rage = { on:false, t:0, used:0 };
+  }
   b.pact = 0;
   for (const k of Object.keys(b.uses)){ const u = b.uses[k]; if (kind === "long" || u.rest === "breve") u.used = 0; }
   commit(); renderAll(true);
-  toast(kind === "long" ? "Riposo lungo: slot, arcanum e usi recuperati" : "Riposo breve: slot del patto e usi «a riposo breve» recuperati");
+  toast(kind === "long" ? `🌙 Riposo lungo: PF al massimo${isBarb(b) ? ", ira" : ""}, slot e usi dei privilegi recuperati` : "☕ Riposo breve: slot del patto e usi «a riposo breve» recuperati (i Dadi Vita segnali come Cura)");
 }
 function spendSlot(key, spent){
   const b = book();
@@ -2498,6 +2577,13 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "rest-long": confirmSheet("Riposo lungo?", "Recuperi tutti i punti ferita, gli slot incantesimo, l'ira e gli usi dei privilegi; la concentrazione termina.", "🌙 Riposa", () => rest("long")); break;
+    case "rage-panel": openRagePanel(); break;
+    case "rage-start": { const msg = startRage(b); commit(); renderHeader(); renderSheet(); toast(msg); break; }
+    case "rage-end": b.rage.on = false; b.rage.t = 0; if (el.closest("#sheet")) closeSheet(); commit(); renderHeader(); renderSheet(); toast("L'ira è terminata"); break;
+    case "rage-turn": { if (!b.rage.on) break; b.rage.t = clamp(b.rage.t + Number(el.dataset.d), 0, 99);
+      if (!b.rage.t){ b.rage.on = false; if (el.closest("#sheet")) closeSheet(); commit(); renderHeader(); renderSheet(); toast("Il minuto è passato: l'ira è terminata"); break; }
+      commit(); renderHeader(); renderSheet(); if (!el.closest("#sheet")) toast(`Turno passato: ${b.rage.t === 1 ? "resta 1 turno" : `restano ${b.rage.t} turni`} di ira`); break; }
     case "bx-ac": b.ac = +el.dataset.v; commit(); renderSheet(); toast(`Classe armatura: ${b.ac}`); break;
     case "bx-migr": { if (el.dataset.v === "sub"){ const R = bonusInfo(b); AB_ALL.forEach(k => { b.ab[k] = Math.max(1, b.ab[k] - R.ab[k]); }); }
       b.v20 = 1; commit(); renderHeader(); renderSheet(); toast(el.dataset.v === "sub" ? "Bonus tolti dai punteggi base: ora si sommano da soli" : "Perfetto: i bonus si sommano da soli"); break; }
@@ -2515,7 +2601,7 @@ document.addEventListener("click", e => {
     case "hp-panel": openHpPanel(); break;
     case "hpw-dmg": { const n = hpReadInput(); if (!n) break; hpLog(b, "d", n); const t = hpDamage(b, n); hpChanged();
       const cs = b.conc ? getSpell(b.conc) : null;
-      toast(`−${n} PF${t ? ` (${t} dai temporanei)` : ""}: ora ${b.hp.cur}/${b.hp.max}${cs ? ` · ${cs.n}: TS Costituzione CD ${Math.max(10, Math.floor(n / 2))}` : ""}`); break; }
+      toast(`−${n} PF${t ? ` (${t} dai temporanei)` : ""}: ora ${b.hp.cur}/${b.hp.max}${cs ? ` · ${cs.n}: TS Costituzione CD ${Math.max(10, Math.floor(n / 2))}` : ""}${b.rage.on && !b.hp.cur && b.lvl >= 11 ? " · Ira Implacabile: TS Costituzione CD 10 per restare a 1 PF" : ""}`); break; }
     case "hpw-heal": { const n = hpReadInput(); if (!n) break; hpLog(b, "h", n); hpHeal(b, n); hpChanged(); toast(`+${n} PF: ora ${b.hp.cur}/${b.hp.max}`); break; }
     case "hpw-set": { const n = hpReadInput(); if (!n) break; hpLog(b, "m", n); b.hp.max = n; b.hp.cur = n; hpChanged(); toast(`Punti ferita massimi: ${n}`); break; }
     case "hp-undo": { const e = b.hpLog.pop(); if (!e) break; Object.assign(b.hp, { cur:e.p.cur, tmp:e.p.tmp, max:e.p.max }); b.death = { s:e.p.s, f:e.p.f };
