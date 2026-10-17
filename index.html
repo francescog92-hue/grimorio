@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "17/10/2026 · c74ba7";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "17/10/2026 · 9e4722";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -385,6 +385,13 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .atk-v small{font-size:12px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em}
 .atk-v b{font-size:24px;font-variant-numeric:tabular-nums}
 .atk-v em{font-style:normal;color:var(--ink-2);font-weight:700;font-size:14px}
+.atk-pw{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:6px 12px;border-radius:12px;border:2px dashed var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:800;font-size:15px;cursor:pointer;text-align:left}
+.atk-pw .sw{width:40px;height:24px;border-radius:999px;background:var(--line-2);position:relative;flex:none;transition:background .2s}
+.atk-pw .sw::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s}
+.atk-pw.on{border-style:solid;border-color:#C0392B;background:color-mix(in srgb, #C0392B 14%, var(--surface))}
+.atk-pw.on .sw{background:#C0392B}.atk-pw.on .sw::after{left:19px}
+.atk-pw small{display:block;font-weight:600;color:var(--ink-2);font-size:13px}
+.atk-pw:disabled{opacity:.55;cursor:default}
 .atk-n{font-size:13px;color:var(--ink-2);line-height:1.45}
 @media (max-width:560px){ .sh-box.atk{grid-column:1 / -1} }
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
@@ -678,7 +685,7 @@ function normBook(o){
   b.hideSecs = {}; if (o.hideSecs && typeof o.hideSecs === "object") for (const k of ["sheet", "spells", "trait", "feat"]) if (o.hideSecs[k]) b.hideSecs[k] = 1;
   b.v20 = o.v20 ? 1 : 0;
   b.rage = { on:!!(o.rage && o.rage.on), t:num(o.rage && o.rage.t, 0, 99, 0), used:num(o.rage && o.rage.used, 0, 99, 0) };
-  for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0) }; }
+  for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0), pw:!!(a && a.pw) }; }
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
   b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
     .map(e => ({ k:e.k, n:num(e.n, 0, 9999, 0), p:{ cur:num(e.p.cur, 0, 9999, 0), tmp:num(e.p.tmp, 0, 9999, 0), max:num(e.p.max, 0, 9999, 0), s:num(e.p.s, 0, 3, 0), f:num(e.p.f, 0, 3, 0) } })) : [];
@@ -866,9 +873,11 @@ function atkInfo(b, R, slot){
   let die = w[2];
   if (monkW && dieSize(martialDie(b.lvl)) > dieSize(die)) die = martialDie(b.lvl);
   const pb = shProf(b), mg = a.mg || 0, notes = [];
-  const hit = mod + pb + mg + (ranged && ammo && R.style === "archery" ? 2 : 0);
+  const pwFeat = ranged ? !!b.feats["sharpshooter"] : !!b.feats["great-weapon-master"];
+  const pwOk = pwFeat && (ranged ? ammo : heavy), pwOn = pwOk && a.pw;
+  const hit = mod + pb + mg + (ranged && ammo && R.style === "archery" ? 2 : 0) - (pwOn ? 5 : 0);
   const duel = !ranged && R.style === "dueling" && !two ? 2 : 0;
-  const rageOn = R.rage && b.rage.on && !ranged && !useDex, dmg = mod + mg + duel + (rageOn ? rageDmg(b.lvl) : 0);
+  const rageOn = R.rage && b.rage.on && !ranged && !useDex, dmg = mod + mg + duel + (rageOn ? rageDmg(b.lvl) : 0) + (pwOn ? 10 : 0);
   const fmt = (d, n) => d === "1" ? String(Math.max(1, 1 + n)) : d + (n ? ` ${n > 0 ? "+" : "−"} ${Math.abs(n)}` : "");
   let dstr = fmt(die, dmg);
   if (!ranged && R.smite2) dstr += " + 1d8 radiosi";
@@ -882,11 +891,11 @@ function atkInfo(b, R, slot){
   if (R.style === "gwf" && !ranged && (two || vm)) notes.push("Armi Possenti: ritiri gli 1 e i 2 sui dadi dei danni (a due mani)");
   if (R.style === "dueling" && !ranged && !two) notes.push("Duellare: +2 già incluso (nessun'altra arma impugnata)");
   if (R.style === "archery" && ranged && ammo) notes.push("Arciere: +2 a colpire già incluso");
-  if (b.feats["sharpshooter"] && ranged && ammo) notes.push(`Tiratore Scelto: puoi fare ${shSign(hit - 5)} a colpire per +10 ai danni`);
-  if (b.feats["great-weapon-master"] && !ranged && heavy) notes.push(`Maestro delle Armi Possenti: puoi fare ${shSign(hit - 5)} a colpire per +10 ai danni`);
+  if (pwOn) notes.push(`${ranged ? "Tiratore Scelto" : "Maestro delle Armi Possenti"}: −5 a colpire e +10 ai danni già inclusi`);
+  if (!ranged && b.feats["great-weapon-master"]) notes.push("Maestro delle Armi Possenti: dopo un critico o se riduci una creatura a 0 PF, un attacco in mischia con un'azione bonus");
   if (R.crit && R.crit < 20) notes.push(`Critico con ${R.crit}–20`);
   if (mg) notes.push(`Arma magica +${mg} inclusa`);
-  return { w, hit, dmg:dstr, type:w[3], notes };
+  return { w, hit, dmg:dstr, type:w[3], notes, pwFeat, pwOk, pwOn };
 }
 function atkBox(b, R, slot){
   const a = b.atk[slot], info = atkInfo(b, R, slot), lab = slot === "m" ? "Mischia" : "Distanza";
@@ -896,6 +905,9 @@ function atkBox(b, R, slot){
     <div class="atk-sel"><select data-atk="${slot}.w" aria-label="Arma da ${lab.toLowerCase()}"><option value="">Scegli l'arma…</option>${grp("s", "Armi semplici")}${grp("m", "Armi da guerra")}</select>
       <select data-atk="${slot}.mg" aria-label="Bonus magico dell'arma"><option value="0">non magica</option>${[1, 2, 3].map(n => `<option value="${n}" ${a.mg === n ? "selected" : ""}>+${n} magica</option>`).join("")}</select></div>
     ${info ? `<div class="atk-v"><span><small>Colpire</small><b>${shSign(info.hit)}</b></span><span><small>Danni</small><b>${esc(info.dmg)}</b><em>${esc(info.type)}</em></span></div>
+      ${info.pwFeat ? `<button class="atk-pw${info.pwOn ? " on" : ""}" data-act="atk-pw" data-slot="${slot}" aria-pressed="${info.pwOn}" ${info.pwOk ? "" : "disabled"}>
+        <span class="sw" aria-hidden="true"></span><span>${slot === "m" ? "Maestro delle Armi Possenti" : "Tiratore Scelto"}: −5 / +10
+        <small>${info.pwOk ? (info.pwOn ? "Attivo: tocca per tornare al colpo normale" : "Tocca prima di attaccare per il colpo potente") : slot === "m" ? "Serve un'arma pesante (spadone, ascia bipenne, maglio…)" : "Serve un'arma a distanza con munizioni"}</small></span></button>` : ""}
       ${info.notes.length ? `<div class="atk-n">${info.notes.map(esc).join("<br>")}</div>` : ""}`
       : `<div class="atk-n">Scegli l'arma: tiro per colpire e danni si calcolano da soli.</div>`}
   </div>`;
@@ -2577,6 +2589,7 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "atk-pw": { const a = b.atk[el.dataset.slot]; a.pw = !a.pw; commit(); renderSheet(); toast(a.pw ? "Colpo potente: −5 a colpire, +10 ai danni" : "Colpo normale"); break; }
     case "rest-long": confirmSheet("Riposo lungo?", "Recuperi tutti i punti ferita, gli slot incantesimo, l'ira e gli usi dei privilegi; la concentrazione termina.", "🌙 Riposa", () => rest("long")); break;
     case "rage-panel": openRagePanel(); break;
     case "rage-start": { const msg = startRage(b); commit(); renderHeader(); renderSheet(); toast(msg); break; }
