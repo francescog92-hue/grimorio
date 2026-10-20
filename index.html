@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "20/10/2026 · 2ecd35";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "20/10/2026 · 2f27ff";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -418,6 +418,10 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .fury small b{font-size:inherit;line-height:inherit}
 .atk-n{font-size:13px;color:var(--ink-2);line-height:1.45}
 @media (max-width:560px){ .sh-box.atk{grid-column:1 / -1} }
+.sh-pay{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.sh-pay input{width:90px;height:40px;border-radius:10px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:800;font-size:17px;text-align:center}
+.sh-pay select{height:40px;border-radius:10px;border:1px solid var(--pill-dark);background:var(--pill-dark);color:#fff;color-scheme:dark;padding:0 8px;font:inherit;font-weight:700}
+.sh-pay .btn{min-height:40px}
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
 .sh-am{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
 .am-row{display:flex;align-items:center;gap:8px}
@@ -773,7 +777,8 @@ const FX = {
   "ran-2-stile-di-combattimento":{ style:["archery", "defense", "dueling", "twf"] },
   "mon-1-arti-marziali":{ martial:true }, "bar-1-ira":{ rage:true }, "lad-1-attacco-furtivo":{ sneak:true },
   "pal-2-punizione-divina":{ smite:true }, "pal-11-punizione-divina-migliorata":{ smite2:true },
-  "bar-zealot-3-furia-divina":{ divineFury:true }, "gue-champion-3-critico-migliorato":{ crit:19 }, "gue-champion-15-critico-superiore":{ crit:18 },
+  "bar-zealot-3-furia-divina":{ divineFury:true },
+  "bar-totem-3-spirito-totemico":{ totem:"t3" }, "bar-totem-6-aspetto-della-bestia":{ totem:"t6" }, "bar-totem-14-sintonia-totemica":{ totem:"t14" }, "gue-champion-3-critico-migliorato":{ crit:19 }, "gue-champion-15-critico-superiore":{ crit:18 },
   "lizardfolk-armatura-naturale":{ ac:{ base:13, ab:["des"], n:"Armatura Naturale" } }, "tortle-armatura-naturale":{ ac:{ base:17, ab:[], n:"Guscio" } },
   "elf-sensi-acuti":{ skills:["percezione"] }, "eladrin-sensi-acuti":{ skills:["percezione"] }, "harengon-sensi-leporini":{ skills:["percezione"] },
   "harengon-riflessi-della-lepre":{ initProf:true }, "halforc-minaccioso":{ skills:["intimidire"] }, "bugbear-furtivo":{ skills:["furtivita"] },
@@ -862,6 +867,7 @@ function bonusInfo(b){
     if (fx.passive) R.passive += fx.passive;
     ["jack", "athlete", "allSaves", "saveCha", "cap24", "martial", "rage", "sneak", "smite", "smite2", "divineFury"].forEach(f => { if (fx[f]) R[f] = true; });
     if (fx.crit) R.crit = Math.min(R.crit || 20, fx.crit);
+    if (fx.totem){ const v = ch.e; if (TOTEMS[v]) R[fx.totem] = v; else info.todo = true; info.picks.push({ t:"st", from:Object.keys(TOTEMS), v, lab:"Animale", labels:TOTEMS }); }
     if (fx.style){ const st = ch.e; if (fx.style.includes(st)) R.style = st; else info.todo = true; info.picks.push({ t:"st", from:fx.style, v:st, lab:"Stile", labels:STYLE_N }); }
     if (fx.ac) R.ac.push(fx.ac);
     if (info.todo) R.todo++;
@@ -888,6 +894,12 @@ const WEAPONS = [
   ["longbow", "Arco lungo", "1d8", "perforanti", "RH2", "mr"]
 ];
 const WEAPON_BY = Object.fromEntries(WEAPONS.map(w => [w[0], w]));
+const TOTEMS = { orso:"Orso", aquila:"Aquila", lupo:"Lupo" };
+const TOTEM_FX = {
+  t3:{ orso:"resistenza a tutti i danni tranne quelli psichici", aquila:"gli attacchi di opportunità contro di te hanno svantaggio e puoi Scattare con un'azione bonus", lupo:"gli alleati hanno vantaggio in mischia contro i nemici entro 1,5 m da te" },
+  t6:{ orso:"capacità di carico doppia, vantaggio alle prove di Forza per spingere, sollevare, rompere", aquila:"vedi fino a 1,5 km, la luce fioca non ti penalizza a Percezione", lupo:"segui tracce a passo veloce, ti muovi furtivo a passo normale" },
+  t14:{ orso:"i nemici entro 1,5 m hanno svantaggio ad attaccare bersagli diversi da te", aquila:"velocità di volo pari a quella base (finché la usi nel turno)", lupo:"quando colpisci in mischia una creatura Grande o più piccola, puoi buttarla prona con un'azione bonus" }
+};
 const STYLE_N = { archery:"Arciere (+2 a colpire a distanza)", defense:"Difesa (+1 CA con armatura)", dueling:"Duellare (+2 ai danni a una mano)",
   gwf:"Armi Possenti (ritiri 1 e 2 ai danni)", protection:"Protezione", twf:"Due Armi (mod. ai danni della seconda arma)" };
 const dieSize = d => d === "1" ? 1 : parseInt(String(d).split("d")[1], 10) * parseInt(d, 10);
@@ -945,6 +957,21 @@ const AMMO_FOR = {
   handaxe:["Asce", 2, /^asc[ei]\b/, true], lighthammer:["Martelli leggeri", 2, /martell/, true], spear:["Lance", 1, /^lanc[ei]\b/, true], trident:["Tridenti", 1, /tridente|tridenti/, true]
 };
 const ammoIndex = (b, wid) => { const f = AMMO_FOR[wid]; return f ? b.ammo.findIndex(a => f[2].test(a.n.toLowerCase())) : -1; };
+/* Monete: valore in rame; il resto si dà in platino, oro, argento e rame (l'electrum non si usa come resto). */
+const COIN_CP = { mr:1, ma:10, me:50, mo:100, mp:1000 };
+function coinSpend(b, k){
+  if (b.coins[k] > 0){ b.coins[k]--; return true; }
+  const v = COIN_CP[k];
+  const h = Object.keys(COIN_CP).filter(x => COIN_CP[x] > v && b.coins[x] > 0).sort((x, y) => COIN_CP[x] - COIN_CP[y])[0];
+  if (!h) return false;
+  b.coins[h]--;
+  let rest = COIN_CP[h] - v;
+  for (const c of ["mp", "mo", "ma", "mr"]){ if (COIN_CP[c] >= COIN_CP[h]) continue; const n = Math.floor(rest / COIN_CP[c]); b.coins[c] += n; rest -= n * COIN_CP[c]; }
+  return true;
+}
+const coinTotal = b => Object.keys(COIN_CP).reduce((t, k) => t + b.coins[k] * COIN_CP[k], 0);
+const coinDiff = (before, after) => Object.keys(COIN_CP).filter(k => after[k] !== before[k] && k !== "_")
+  .map(k => `${after[k] > before[k] ? "+" : "−"}${Math.abs(after[k] - before[k])} ${k}`).join(", ");
 function atkInfo(b, R, slot){
   const a = b.atk[slot], w = WEAPON_BY[a.w]; if (!w) return null;
   const P = w[4], ammo = P.includes("R"), fin = P.includes("F"), thrown = P.includes("T"), two = P.includes("2"), heavy = P.includes("H");
@@ -1819,6 +1846,7 @@ function rageChip(b){
     <button class="end" data-act="rage-end" aria-label="Termina l'ira">Termina</button></span>`;
 }
 function ragePanel(b){
+  const R = bonusInfo(b);
   const max = rageMax(b.lvl), left = max === Infinity ? Infinity : Math.max(0, max - b.rage.used), sub = subOf(b);
   const subNotes = sub ? sub.f.filter(f => f.l <= b.lvl && /\bir[ae]\b/i.test(f.x)).map(f => f.n) : [];
   const uses = max === Infinity ? `<div class="rp-uses">Usi illimitati (20° livello)</div>`
@@ -1837,7 +1865,10 @@ function ragePanel(b){
     <ul class="rp-list">
       <li><b>Vantaggio</b> alle prove e ai tiri salvezza di Forza.</li>
       <li><b>+${rageDmg(b.lvl)} ai danni</b> degli attacchi in mischia con la Forza (già sommato nel riquadro Mischia della Scheda).</li>
-      <li><b>Resistenza</b> ai danni contundenti, perforanti e taglienti: dimezzali prima di segnarli.</li>
+      ${R.t3 === "orso" ? `<li><b>🐻 Orso: resistenza a tutti i danni tranne quelli psichici</b> (fuoco, veleno, necrotici, acido, fulmine… compresi): dimezzali prima di segnarli.</li>`
+        : `<li><b>Resistenza</b> ai danni contundenti, perforanti e taglienti: dimezzali prima di segnarli.</li>`}
+      ${R.t3 === "aquila" ? `<li><b>🦅 Aquila:</b> ${TOTEM_FX.t3.aquila}.</li>` : R.t3 === "lupo" ? `<li><b>🐺 Lupo:</b> ${TOTEM_FX.t3.lupo}.</li>` : ""}
+      ${R.t14 ? `<li><b>Sintonia Totemica (${TOTEMS[R.t14]}):</b> ${TOTEM_FX.t14[R.t14]}.</li>` : ""}
       <li><b>Niente incantesimi</b> e niente concentrazione finché sei in ira.</li>
       <li>${b.lvl >= 15 ? "<b>Ira Persistente:</b> finisce prima solo se perdi i sensi o scegli di terminarla." : "Finisce prima se nel tuo turno non attacchi una creatura ostile e non subisci danni, o se perdi i sensi."}</li>
       ${b.lvl >= 11 ? `<li><b>Ira Implacabile:</b> se scendi a 0 PF, TS su Costituzione CD 10 (+5 a ogni uso) per restare a 1 PF.</li>` : ""}
@@ -1943,6 +1974,7 @@ function sheetHTML(b){
       if (f.jack) parts.push("metà competenza alle prove senza competenza"); if (f.athlete) parts.push("metà competenza (arr. per eccesso) a Forza, Destrezza e Costituzione senza competenza");
       if (f.allSaves) parts.push("competenza in tutti i TS"); if (f.saveCha) parts.push("+ mod. di Carisma a tutti i TS");
       if (f.martial) parts.push(`colpi senz'armi e armi da monaco con dado ${martialDie(b.lvl)}`); if (f.rage) parts.push("bonus ai danni in ira"); if (f.sneak) parts.push(`Attacco Furtivo ${Math.ceil(b.lvl / 2)}d6`);
+      if (f.totem){ const v = (b.ch[x.src.key] || {}).e; parts.push(TOTEMS[v] ? `${TOTEMS[v]}: ${TOTEM_FX[f.totem][v]}${f.totem === "t6" ? "" : " (in ira)"}` : "scegli l'animale"); }
       if (f.divineFury) parts.push(`Furia Divina: +1d6 + ${Math.floor(b.lvl / 2)} radiosi o necrotici al primo bersaglio colpito nel turno, in ira`);
       if (f.smite) parts.push("Punizione Divina"); if (f.smite2) parts.push("+1d8 radiosi a ogni colpo in mischia"); if (f.crit) parts.push(`critico con ${f.crit}–20`);
       if (f.ac) parts.push(`CA senza armatura: ${f.ac.base}${f.ac.ab.length ? " + " + f.ac.ab.map(abN).join(" + ") : ""}`);
@@ -1973,6 +2005,10 @@ function sheetHTML(b){
     <div class="sh-coins">${SH_COINS.map(([k, n, , c]) => `<div class="sh-coin"><span class="cn"><span class="dot" style="background:${c}" aria-hidden="true"></span>${n}<small>${k}</small></span>
       <button class="pm" data-act="sh-coin" data-k="${k}" data-d="-1" aria-label="Togli 1 moneta di ${n.toLowerCase()}">−</button>${num("coin." + k, b.coins[k], "Monete di " + n.toLowerCase())}<button class="pm" data-act="sh-coin" data-k="${k}" data-d="1" aria-label="Aggiungi 1 moneta di ${n.toLowerCase()}">+</button></div>`).join("")}</div>
     <p class="sh-total">In tutto: ${total.toLocaleString("it-IT", { maximumFractionDigits:2 })} monete d'oro</p>
+    <div class="sh-pay"><input id="payN" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="Quanto" aria-label="Quante monete">
+      <select id="payK" aria-label="Moneta">${SH_COINS.map(([k, n]) => `<option value="${k}" ${k === "mo" ? "selected" : ""}>${n.toLowerCase()} (${k})</option>`).join("")}</select>
+      <button class="btn primary" data-act="coin-pay">Paga</button><button class="btn" data-act="coin-get">Ricevi</button><button class="btn soft" data-act="coin-tidy" title="Cambia il rame in argento e l'argento in oro">Riordina</button></div>
+    <p class="sh-note" style="margin-top:6px">Il «−» e «Paga» fanno da soli il resto: se non hai argento, cambiano una moneta d'oro.</p>
 
     <h3 class="sh-h">Munizioni</h3>
     ${b.ammo.length ? "" : `<p class="sh-note">Aggiungi le munizioni che usi: a ogni colpo tocca <b>Tira −1</b>; a fine combattimento <b>Recupera metà</b> riprende la metà di quelle tirate.</p>`}
@@ -2730,7 +2766,20 @@ document.addEventListener("click", e => {
     case "hp-undo": { const e = b.hpLog.pop(); if (!e) break; Object.assign(b.hp, { cur:e.p.cur, tmp:e.p.tmp, max:e.p.max }); b.death = { s:e.p.s, f:e.p.f };
       hpChanged(); toast("Ultima modifica annullata"); break; }
     case "hp-death": { const k = el.dataset.k, i2 = +el.dataset.i; b.death[k] = b.death[k] === i2 + 1 ? i2 : i2 + 1; hpChanged(); break; }
-    case "sh-coin": { const k = el.dataset.k; b.coins[k] = Math.max(0, b.coins[k] + Number(el.dataset.d)); commit(); renderSheet(); break; }
+    case "sh-coin": { const k = el.dataset.k, d = Number(el.dataset.d);
+      if (d > 0){ b.coins[k]++; commit(); renderSheet(); break; }
+      const before = Object.assign({}, b.coins), had = b.coins[k] > 0;
+      if (!coinSpend(b, k)){ toast("Non hai abbastanza monete"); break; }
+      commit(); renderSheet(); if (!had) toast(`Resto automatico: ${coinDiff(before, b.coins)}`); break; }
+    case "coin-pay": case "coin-get": { const i = document.getElementById("payN"), k = document.getElementById("payK").value, n = parseInt(String(i.value).replace(/\D/g, ""), 10);
+      if (!n){ i.focus(); toast("Scrivi quante monete"); break; }
+      if (el.dataset.act === "coin-get"){ b.coins[k] += n; commit(); renderSheet(); toast(`+${n} ${k}`); break; }
+      if (coinTotal(b) < n * COIN_CP[k]){ toast("Non hai abbastanza monete"); break; }
+      const before = Object.assign({}, b.coins); for (let j = 0; j < n; j++) if (!coinSpend(b, k)) break;
+      commit(); renderSheet(); toast(`Pagati ${n} ${k}: ${coinDiff(before, b.coins)}`); break; }
+    case "coin-tidy": { const before = Object.assign({}, b.coins);
+      b.coins.ma += Math.floor(b.coins.mr / 10); b.coins.mr %= 10; b.coins.mo += Math.floor(b.coins.ma / 10); b.coins.ma %= 10;
+      commit(); renderSheet(); const d = coinDiff(before, b.coins); toast(d ? `Riordinate: ${d}` : "Già in ordine"); break; }
     case "sh-am": { const a = b.ammo[+el.dataset.i]; if (!a) break; const d = Number(el.dataset.d);
       if (d < 0){ if (!a.q) break; a.q--; a.spent++; } else a.q++;
       commit(); renderSheet(); if (d < 0) toast(`${a.n}: ne restano ${a.q}`); break; }
