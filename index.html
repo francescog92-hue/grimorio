@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "20/10/2026 · f970a8";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "20/10/2026 · 2ecd35";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -405,6 +405,17 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .arm-warn{font-size:13px;color:var(--warn);font-weight:700;line-height:1.45}
 .ac-big{font-size:30px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
 @media (max-width:560px){ .sh-box.arm{grid-column:1 / -1} }
+.fury{display:flex;flex-direction:column;gap:4px;border-radius:12px;padding:8px 12px;border:1px solid color-mix(in srgb, #E8B44F 55%, transparent);background:color-mix(in srgb, #E8B44F 8%, var(--surface));opacity:.75}
+.fury.on{opacity:1;border-color:#E8B44F;background:color-mix(in srgb, #E8B44F 18%, var(--surface));box-shadow:0 0 0 1px #E8B44F inset,0 0 14px color-mix(in srgb, #E8B44F 35%, transparent)}
+.fury-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.fury-h .fz{font-weight:800;color:#B07A12}
+.fury.on .fury-h .fz{color:#8A5A00}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .fury-h .fz{color:#E8B44F} }
+:root[data-theme="dark"] .fury-h .fz{color:#E8B44F}
+.fury-h b{font-size:18px;font-variant-numeric:tabular-nums}
+.fury-h .fd-t{border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:999px;padding:2px 10px;font:inherit;font-size:13px;font-weight:800;cursor:pointer}
+.fury small{color:var(--ink-2);font-size:13px;line-height:1.4}
+.fury small b{font-size:inherit;line-height:inherit}
 .atk-n{font-size:13px;color:var(--ink-2);line-height:1.45}
 @media (max-width:560px){ .sh-box.atk{grid-column:1 / -1} }
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
@@ -665,7 +676,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, rage:{ on:false, t:0, used:0 }, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, armor:{ a:"", mg:0, sh:false, shmg:0 }, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, rage:{ on:false, t:0, used:0 }, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, armor:{ a:"", mg:0, sh:false, shmg:0 }, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 }, fd:"radiosi" }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -700,6 +711,7 @@ function normBook(o){
   { const a = o.armor || {}; b.armor = { a:typeof a.a === "string" ? a.a : "", mg:num(a.mg, 0, 3, 0), sh:!!a.sh, shmg:num(a.shmg, 0, 3, 0) }; }
   b.rage = { on:!!(o.rage && o.rage.on), t:num(o.rage && o.rage.t, 0, 99, 0), used:num(o.rage && o.rage.used, 0, 99, 0) };
   for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0), pw:!!(a && a.pw) }; }
+  b.atk.fd = o.atk && o.atk.fd === "necrotici" ? "necrotici" : "radiosi";
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
   b.hpLog = Array.isArray(o.hpLog) ? o.hpLog.filter(e => e && "dhtm".includes(e.k) && e.p).slice(-20)
     .map(e => ({ k:e.k, n:num(e.n, 0, 9999, 0), p:{ cur:num(e.p.cur, 0, 9999, 0), tmp:num(e.p.tmp, 0, 9999, 0), max:num(e.p.max, 0, 9999, 0), s:num(e.p.s, 0, 3, 0), f:num(e.p.f, 0, 3, 0) } })) : [];
@@ -761,7 +773,7 @@ const FX = {
   "ran-2-stile-di-combattimento":{ style:["archery", "defense", "dueling", "twf"] },
   "mon-1-arti-marziali":{ martial:true }, "bar-1-ira":{ rage:true }, "lad-1-attacco-furtivo":{ sneak:true },
   "pal-2-punizione-divina":{ smite:true }, "pal-11-punizione-divina-migliorata":{ smite2:true },
-  "gue-champion-3-critico-migliorato":{ crit:19 }, "gue-champion-15-critico-superiore":{ crit:18 },
+  "bar-zealot-3-furia-divina":{ divineFury:true }, "gue-champion-3-critico-migliorato":{ crit:19 }, "gue-champion-15-critico-superiore":{ crit:18 },
   "lizardfolk-armatura-naturale":{ ac:{ base:13, ab:["des"], n:"Armatura Naturale" } }, "tortle-armatura-naturale":{ ac:{ base:17, ab:[], n:"Guscio" } },
   "elf-sensi-acuti":{ skills:["percezione"] }, "eladrin-sensi-acuti":{ skills:["percezione"] }, "harengon-sensi-leporini":{ skills:["percezione"] },
   "harengon-riflessi-della-lepre":{ initProf:true }, "halforc-minaccioso":{ skills:["intimidire"] }, "bugbear-furtivo":{ skills:["furtivita"] },
@@ -848,7 +860,7 @@ function bonusInfo(b){
     if (fx.speedMonk) R.speedMonk = true;
     if (fx.hpLvl) R.hpLvl += fx.hpLvl;
     if (fx.passive) R.passive += fx.passive;
-    ["jack", "athlete", "allSaves", "saveCha", "cap24", "martial", "rage", "sneak", "smite", "smite2"].forEach(f => { if (fx[f]) R[f] = true; });
+    ["jack", "athlete", "allSaves", "saveCha", "cap24", "martial", "rage", "sneak", "smite", "smite2", "divineFury"].forEach(f => { if (fx[f]) R[f] = true; });
     if (fx.crit) R.crit = Math.min(R.crit || 20, fx.crit);
     if (fx.style){ const st = ch.e; if (fx.style.includes(st)) R.style = st; else info.todo = true; info.picks.push({ t:"st", from:fx.style, v:st, lab:"Stile", labels:STYLE_N }); }
     if (fx.ac) R.ac.push(fx.ac);
@@ -956,6 +968,7 @@ function atkInfo(b, R, slot){
   if (ranged && thrown && !ammo) notes.push("Arma da lancio: gittata breve, poi la recuperi");
   if (monkW) notes.push(`Arti Marziali: dado ${martialDie(b.lvl)}, Forza o Destrezza; colpo senz'armi bonus con un'azione bonus`);
   if (R.rage && !ranged && !useDex) notes.push(rageOn ? `🔥 In ira: +${rageDmg(b.lvl)} già sommato` : `In ira: +${rageDmg(b.lvl)} ai danni`);
+  if (R.divineFury && ranged) notes.push(`✦ Furia Divina${b.rage.on ? "" : " (in ira)"}: +1d6 + ${Math.floor(b.lvl / 2)} ${b.atk.fd} al primo bersaglio colpito nel turno`);
   if (R.sneak && (fin || ammo || ranged)) notes.push(`Attacco Furtivo: +${Math.ceil(b.lvl / 2)}d6 una volta per turno (con vantaggio o un alleato vicino al bersaglio)`);
   if (R.smite && !ranged) notes.push("Punizione Divina: +2d8 radiosi spendendo uno slot (+1d8 per livello di slot in più, +1d8 contro non morti e immondi)");
   if (R.style === "gwf" && !ranged && (two || vm)) notes.push("Armi Possenti: ritiri gli 1 e i 2 sui dadi dei danni (a due mani)");
@@ -975,6 +988,10 @@ function atkBox(b, R, slot){
     <div class="atk-sel"><select data-atk="${slot}.w" aria-label="Arma da ${lab.toLowerCase()}"><option value="">Scegli l'arma…</option>${grp("s", "Armi semplici")}${grp("m", "Armi da guerra")}</select>
       <select data-atk="${slot}.mg" aria-label="Bonus magico dell'arma"><option value="0">non magica</option>${[1, 2, 3].map(n => `<option value="${n}" ${a.mg === n ? "selected" : ""}>+${n} magica</option>`).join("")}</select></div>
     ${info ? `<div class="atk-v"><span><small>Colpire</small><b>${shSign(info.hit)}</b></span><span><small>Danni</small><b>${esc(info.dmg)}</b><em>${esc(info.type)}</em></span></div>
+      ${slot === "m" && R.divineFury ? (() => { const n = Math.floor(b.lvl / 2), on = b.rage.on;
+        return `<div class="fury${on ? " on" : ""}"><div class="fury-h"><span class="fz">✦ Furia Divina</span><b>+1d6 + ${n}</b>
+          <button class="fd-t" data-act="fd-type" aria-label="Tipo di danno: ${b.atk.fd}, tocca per cambiare">${b.atk.fd} ⇄</button></div>
+          <small>${on ? `<b>Attiva:</b> primo bersaglio colpito nel turno → <b>${esc(info.dmg)} + 1d6 + ${n} ${b.atk.fd}</b>` : "Solo in ira: al primo bersaglio che colpisci con un'arma in ogni tuo turno."}</small></div>`; })() : ""}
       ${slot === "r" && AMMO_FOR[a.w] ? (() => { const f = AMMO_FOR[a.w], i = ammoIndex(b, a.w), m = b.ammo[i];
         return m ? `<div class="atk-am"><span class="q"><b>${m.q}</b>${esc(m.n)}${m.spent ? ` · ${f[3] ? "lanciati" : "tirate"} ${m.spent}` : ""}</span>
           <button class="btn" data-act="sh-am" data-i="${i}" data-d="1" aria-label="Aggiungi 1">+1</button>
@@ -1926,6 +1943,7 @@ function sheetHTML(b){
       if (f.jack) parts.push("metà competenza alle prove senza competenza"); if (f.athlete) parts.push("metà competenza (arr. per eccesso) a Forza, Destrezza e Costituzione senza competenza");
       if (f.allSaves) parts.push("competenza in tutti i TS"); if (f.saveCha) parts.push("+ mod. di Carisma a tutti i TS");
       if (f.martial) parts.push(`colpi senz'armi e armi da monaco con dado ${martialDie(b.lvl)}`); if (f.rage) parts.push("bonus ai danni in ira"); if (f.sneak) parts.push(`Attacco Furtivo ${Math.ceil(b.lvl / 2)}d6`);
+      if (f.divineFury) parts.push(`Furia Divina: +1d6 + ${Math.floor(b.lvl / 2)} radiosi o necrotici al primo bersaglio colpito nel turno, in ira`);
       if (f.smite) parts.push("Punizione Divina"); if (f.smite2) parts.push("+1d8 radiosi a ogni colpo in mischia"); if (f.crit) parts.push(`critico con ${f.crit}–20`);
       if (f.ac) parts.push(`CA senza armatura: ${f.ac.base}${f.ac.ab.length ? " + " + f.ac.ab.map(abN).join(" + ") : ""}`);
       const sel = (pk) => `<select data-bx="${esc(x.src.key)}" data-t="${pk.t}" data-i="${pk.i || 0}" aria-label="${esc(pk.lab)}"><option value="">${pk.t === "a" ? pk.lab + "…" : pk.lab + "…"}</option>${pk.from.map(k => `<option value="${k}" ${k === pk.v ? "selected" : ""}>${pk.labels ? pk.labels[k] : pk.t === "a" ? abN(k) : skN(k)}</option>`).join("")}</select>`;
@@ -2678,6 +2696,7 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "fd-type": b.atk.fd = b.atk.fd === "necrotici" ? "radiosi" : "necrotici"; commit(); renderSheet(); toast(`Furia Divina: danni ${b.atk.fd}`); break;
     case "arm-shield": b.armor.sh = !b.armor.sh; commit(); renderSheet(); toast(b.armor.sh ? "Scudo imbracciato: +2 alla CA" : "Scudo tolto"); break;
     case "atk-am-new": { const f = AMMO_FOR[el.dataset.w]; if (!f || b.ammo.length >= 20) break; b.ammo.push({ id:rid("am-"), n:f[0], q:f[1], spent:0, thr:!!f[3] }); commit(); renderSheet(); toast(`${f[0]}: ${f[1]} (cambia il numero nelle Munizioni)`); break; }
     case "atk-pw": { const a = b.atk[el.dataset.slot]; a.pw = !a.pw; commit(); renderSheet(); toast(a.pw ? "Colpo potente: −5 a colpire, +10 ai danni" : "Colpo normale"); break; }
