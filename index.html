@@ -12,7 +12,7 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="stylesheet" href="fonts/fonts.css">
-<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "17/10/2026 · 9e4722";</script>
+<script>window.GRIMORIO_PWA = true; window.GRIMORIO_VERSION = "20/10/2026 · f970a8";</script>
 </head>
 <body>
 <title>Libro degli Incantesimi</title>
@@ -392,6 +392,19 @@ select option,select optgroup{background-color:var(--opt-bg);color:var(--opt-ink
 .atk-pw.on .sw{background:#C0392B}.atk-pw.on .sw::after{left:19px}
 .atk-pw small{display:block;font-weight:600;color:var(--ink-2);font-size:13px}
 .atk-pw:disabled{opacity:.55;cursor:default}
+.atk-am{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--surface-2);border-radius:12px;padding:8px 8px 8px 12px}
+.atk-am .q{flex:1;min-width:120px;font-weight:700;color:var(--ink-2)}
+.atk-am .q b{font-size:22px;color:var(--ink);font-variant-numeric:tabular-nums;margin-right:4px}
+.atk-am .btn.primary{font-size:16px;padding:0 18px}
+.sh-box.arm{grid-column:span 2;gap:8px}
+.arm-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.arm-row select{height:40px;border-radius:10px;border:1px solid var(--pill-dark);background:var(--pill-dark);color:#fff;color-scheme:dark;padding:0 8px;font:inherit;font-weight:700;font-size:14px;min-width:0;flex:1 1 150px}
+.arm-row select.mg{flex:0 1 112px}
+.shield-btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:10px;border:2px dashed var(--line-2);background:var(--surface-2);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+.shield-btn.on{border-style:solid;border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.arm-warn{font-size:13px;color:var(--warn);font-weight:700;line-height:1.45}
+.ac-big{font-size:30px;font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+@media (max-width:560px){ .sh-box.arm{grid-column:1 / -1} }
 .atk-n{font-size:13px;color:var(--ink-2);line-height:1.45}
 @media (max-width:560px){ .sh-box.atk{grid-column:1 / -1} }
 .sh-total{margin:4px 0 0;color:var(--ink-2);font-weight:700}
@@ -652,7 +665,7 @@ UI.q = ""; UI.tq = ""; UI.sel = undefined;
 
 function newBook(name, cls){
   return { name: name || "Il mio personaggio", cls: cls || "X", sub:"", lvl:1, score:16, bg:"", race:"", subrace:"",
-    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, rage:{ on:false, t:0, used:0 }, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
+    prep:{}, book:{}, always:{}, extra:{}, used:[0,0,0,0,0,0,0,0,0], pact:0, arc:{}, conc:"", concT:0, concMax:0, rage:{ on:false, t:0, used:0 }, ab:{for:10,des:10,cos:10,int:10,sag:10,car:10}, saves:null, skills:{}, hp:{max:0,cur:0,tmp:0,auto:true}, death:{s:0,f:0}, hpLog:[], ch:{}, hideSecs:{}, v20:1, armor:{ a:"", mg:0, sh:false, shmg:0 }, atk:{ m:{ w:"", mg:0 }, r:{ w:"", mg:0 } }, ac:10, speed:"", coins:{mp:0,mo:0,me:0,ma:0,mr:0}, ammo:[], hidden:{}, edits:{}, custom:[],
     feats:{}, xedits:{}, xhidden:{}, xcustom:[], uses:{}, portrait:null, fileSavedAt:0, updated:Date.now() };
 }
 function normBook(o){
@@ -684,6 +697,7 @@ function normBook(o){
     b.ch[k] = { m:num(c.m, 0, 9, 0), a:Array.isArray(c.a) ? c.a.map(x => String(x)).slice(0, 4) : [], s:Array.isArray(c.s) ? c.s.map(x => String(x)).slice(0, 4) : [], e:typeof c.e === "string" ? c.e : "" }; }
   b.hideSecs = {}; if (o.hideSecs && typeof o.hideSecs === "object") for (const k of ["sheet", "spells", "trait", "feat"]) if (o.hideSecs[k]) b.hideSecs[k] = 1;
   b.v20 = o.v20 ? 1 : 0;
+  { const a = o.armor || {}; b.armor = { a:typeof a.a === "string" ? a.a : "", mg:num(a.mg, 0, 3, 0), sh:!!a.sh, shmg:num(a.shmg, 0, 3, 0) }; }
   b.rage = { on:!!(o.rage && o.rage.on), t:num(o.rage && o.rage.t, 0, 99, 0), used:num(o.rage && o.rage.used, 0, 99, 0) };
   for (const k of ["m", "r"]){ const a = o.atk && o.atk[k]; b.atk[k] = { w:a && typeof a.w === "string" ? a.w : "", mg:num(a && a.mg, 0, 3, 0), pw:!!(a && a.pw) }; }
   b.death = { s:num(o.death && o.death.s, 0, 3, 0), f:num(o.death && o.death.f, 0, 3, 0) };
@@ -693,7 +707,7 @@ function normBook(o){
   b.speed = typeof o.speed === "string" ? o.speed.slice(0, 24) : "";
   if (o.coins && typeof o.coins === "object") for (const [k] of SH_COINS) b.coins[k] = num(o.coins[k], 0, 99999999, 0);
   if (Array.isArray(o.ammo)) b.ammo = o.ammo.filter(a => a && typeof a.n === "string").slice(0, 20)
-    .map(a => ({ id:typeof a.id === "string" ? a.id : rid("am-"), n:a.n.slice(0, 40), q:num(a.q, 0, 99999, 0), spent:num(a.spent, 0, 99999, 0) }));
+    .map(a => ({ id:typeof a.id === "string" ? a.id : rid("am-"), n:a.n.slice(0, 40), q:num(a.q, 0, 99999, 0), spent:num(a.spent, 0, 99999, 0), thr:!!a.thr }));
   if (Array.isArray(o.custom)) b.custom = o.custom.filter(s => s && typeof s.id === "string" && typeof s.n === "string").map(s => Object.assign({}, s));
   if (Array.isArray(o.xcustom)) b.xcustom = o.xcustom.filter(s => s && typeof s.id === "string" && typeof s.n === "string" && (s.kind === "f" || s.kind === "t")).map(s => Object.assign({}, s));
   b.portrait = normPortrait(o.portrait);
@@ -731,9 +745,10 @@ const SK_ALL = SH_SKILLS.map(x => x[0]);
    allSaves · saveCha · ac {base, ab:[…], n} · cap24 */
 const FX = {
   "bar-1-difesa-senza-armatura":{ ac:{ base:10, ab:["des", "cos"], n:"Difesa senza Armatura" } },
-  "mon-1-difesa-senza-armatura":{ ac:{ base:10, ab:["des", "sag"], n:"Difesa senza Armatura" } },
+  "mon-1-difesa-senza-armatura":{ ac:{ base:10, ab:["des", "sag"], n:"Difesa senza Armatura", noShield:true } },
+  "chr-forge-6-anima-della-forgia":{ acHeavy:1 },
   "str-draconic-1-resilienza-draconica":{ hpLvl:1, ac:{ base:13, ab:["des"], n:"Resilienza Draconica" } },
-  "bar-5-movimento-veloce":{ speed:3, note:"senza armatura pesante" }, "mon-2-movimento-senza-armatura":{ speedMonk:true, note:"senza armatura né scudo" },
+  "bar-5-movimento-veloce":{ speedNoHeavy:3, note:"senza armatura pesante" }, "mon-2-movimento-senza-armatura":{ speedMonk:true, note:"senza armatura né scudo" },
   "pal-glory-7-aura-di-alacrit":{ speed:3 },
   "brd-2-factotum":{ jack:true }, "gue-champion-7-atleta-straordinario":{ athlete:true },
   "mon-14-anima-di-diamante":{ allSaves:true }, "pal-6-aura-di-protezione":{ saveCha:true },
@@ -828,6 +843,8 @@ function bonusInfo(b){
     if (fx.initAb) R.initAb.push(fx.initAb);
     if (fx.initProf) R.initProf = true;
     if (fx.speed) R.speed += fx.speed;
+    if (fx.speedNoHeavy) R.speedNoHeavy = (R.speedNoHeavy || 0) + fx.speedNoHeavy;
+    if (fx.acHeavy) R.acHeavy = (R.acHeavy || 0) + fx.acHeavy;
     if (fx.speedMonk) R.speedMonk = true;
     if (fx.hpLvl) R.hpLvl += fx.hpLvl;
     if (fx.passive) R.passive += fx.passive;
@@ -863,6 +880,59 @@ const STYLE_N = { archery:"Arciere (+2 a colpire a distanza)", defense:"Difesa (
   gwf:"Armi Possenti (ritiri 1 e 2 ai danni)", protection:"Protezione", twf:"Due Armi (mod. ai danni della seconda arma)" };
 const dieSize = d => d === "1" ? 1 : parseInt(String(d).split("d")[1], 10) * parseInt(d, 10);
 const martialDie = lvl => lvl >= 17 ? "1d10" : lvl >= 11 ? "1d8" : lvl >= 5 ? "1d6" : "1d4";
+/* Armature del Manuale del Giocatore: [id, nome, tipo L/M/H, CA base, svantaggio a Furtività, Forza richiesta, costo] */
+const ARMORS = [
+  ["padded", "Imbottita", "L", 11, true, 0, "5 mo"], ["leather", "Cuoio", "L", 11, false, 0, "10 mo"], ["studded", "Cuoio borchiato", "L", 12, false, 0, "45 mo"],
+  ["hide", "Pelle", "M", 12, false, 0, "10 mo"], ["chainshirt", "Giaco di maglia", "M", 13, false, 0, "50 mo"], ["scale", "Corazza di scaglie", "M", 14, true, 0, "50 mo"],
+  ["breastplate", "Corazza di piastre", "M", 14, false, 0, "400 mo"], ["halfplate", "Mezza armatura", "M", 15, true, 0, "750 mo"],
+  ["ring", "Cotta ad anelli", "H", 14, true, 0, "30 mo"], ["chain", "Cotta di maglia", "H", 16, true, 13, "75 mo"], ["splint", "Corazza a strisce", "H", 17, true, 15, "200 mo"],
+  ["plate", "Armatura completa", "H", 18, true, 15, "1500 mo"]
+];
+const ARMOR_BY = Object.fromEntries(ARMORS.map(a => [a[0], a]));
+const CLASS_ARMOR = { bar:"LMS", brd:"L", chr:"LMS", dru:"LMS", gue:"LMHS", lad:"L", mag:"", mon:"", pal:"LMHS", ran:"LMS", str:"", war:"L", art:"LMS" };
+const SUB_ARMOR = { "brd:valor":"MS", "brd:swords":"M", "chr:life":"H", "chr:nature":"H", "chr:tempest":"H", "chr:war":"H", "chr:forge":"H", "chr:order":"H",
+  "chr:twilight":"H", "mag:bladesinging":"L", "war:hexblade":"MS", "art:armorer":"H" };
+function armorProf(b){
+  let p = (CLASS_ARMOR[b.cls] || "") + (SUB_ARMOR[b.cls + ":" + b.sub] || "");
+  if (b.feats["lightly-armored"]) p += "L"; if (b.feats["moderately-armored"]) p += "MS"; if (b.feats["heavily-armored"]) p += "H";
+  return p;
+}
+function acInfo(b, R){
+  const A = b.armor, arm = ARMOR_BY[A.a], dex = shMod(abv(b, "des", R)), notes = [], warn = [];
+  if (!A.a) return null;                                           // CA scritta a mano
+  let v, how;
+  if (!arm){
+    const cands = [{ v:10 + dex, n:"10 + Destrezza" }].concat(R.ac.filter(a => !(a.noShield && A.sh))
+      .map(a => ({ v:a.base + a.ab.reduce((t, k) => t + shMod(abv(b, k, R)), 0), n:`${a.n}: ${a.base}${a.ab.map(k => " + " + (SH_ABS.find(x => x[0] === k) || ["", k])[1]).join("")}` })));
+    const best = cands.reduce((x, y) => y.v > x.v ? y : x);
+    v = best.v; how = best.n;
+  } else {
+    const cap = arm[2] === "H" ? 0 : arm[2] === "M" ? (b.feats["medium-armor-master"] ? 3 : 2) : 99;
+    const d = arm[2] === "H" ? 0 : Math.min(dex, cap);
+    v = arm[3] + d + A.mg; how = `${arm[1]} ${arm[3]}${arm[2] === "H" ? "" : ` + Destrezza ${shSign(d)}${arm[2] === "M" ? ` (max +${cap})` : ""}`}${A.mg ? ` + ${A.mg} magica` : ""}`;
+    if (R.style === "defense"){ v += 1; notes.push("Stile Difesa +1"); }
+    if (arm[2] === "H" && R.acHeavy){ v += R.acHeavy; notes.push(`Anima della Forgia +${R.acHeavy}`); }
+  }
+  if (A.sh){ v += 2 + A.shmg; notes.push(`scudo +${2 + A.shmg}`); }
+  const prof = armorProf(b);
+  const stealth = !!(arm && arm[4] && !(arm[2] === "M" && b.feats["medium-armor-master"]));
+  if (arm && !prof.includes(arm[2])) warn.push("Non sei competente in questa armatura: svantaggio a prove, TS e attacchi con Forza o Destrezza, e niente incantesimi");
+  if (A.sh && !prof.includes("S")) warn.push("Non sei competente negli scudi: stesse penalità");
+  if (arm && arm[5] && abv(b, "for", R) < arm[5]) warn.push(`Serve Forza ${arm[5]}: velocità −3 m`);
+  if (stealth) warn.push("Svantaggio alle prove di Furtività");
+  if (arm && arm[2] === "H" && b.cls === "bar") warn.push("Con l'armatura pesante non puoi entrare in ira né usare Movimento Veloce");
+  if (b.cls === "mon" && (arm || A.sh)) warn.push("Il monaco perde Difesa e Movimento senza Armatura e le Arti Marziali");
+  return { v, how, notes, warn, stealth };
+}
+/* Munizioni abbinate alle armi a distanza: [nome, quantità di partenza, riconoscimento del nome, arma da lancio] */
+const AMMO_FOR = {
+  shortbow:["Frecce", 20, /frecc/], longbow:["Frecce", 20, /frecc/],
+  lightcrossbow:["Dardi", 20, /quadrell|dard(?!.*lancio)/], handcrossbow:["Dardi", 20, /quadrell|dard(?!.*lancio)/], heavycrossbow:["Dardi", 20, /quadrell|dard(?!.*lancio)/],
+  sling:["Proiettili per fionda", 20, /proiettil/], blowgun:["Aghi per cerbottana", 50, /aghi/],
+  dart:["Dardi da lancio", 10, /dard.*lancio/, true], javelin:["Giavellotti", 4, /giavellott/, true], dagger:["Pugnali", 2, /pugnal/, true],
+  handaxe:["Asce", 2, /^asc[ei]\b/, true], lighthammer:["Martelli leggeri", 2, /martell/, true], spear:["Lance", 1, /^lanc[ei]\b/, true], trident:["Tridenti", 1, /tridente|tridenti/, true]
+};
+const ammoIndex = (b, wid) => { const f = AMMO_FOR[wid]; return f ? b.ammo.findIndex(a => f[2].test(a.n.toLowerCase())) : -1; };
 function atkInfo(b, R, slot){
   const a = b.atk[slot], w = WEAPON_BY[a.w]; if (!w) return null;
   const P = w[4], ammo = P.includes("R"), fin = P.includes("F"), thrown = P.includes("T"), two = P.includes("2"), heavy = P.includes("H");
@@ -905,6 +975,12 @@ function atkBox(b, R, slot){
     <div class="atk-sel"><select data-atk="${slot}.w" aria-label="Arma da ${lab.toLowerCase()}"><option value="">Scegli l'arma…</option>${grp("s", "Armi semplici")}${grp("m", "Armi da guerra")}</select>
       <select data-atk="${slot}.mg" aria-label="Bonus magico dell'arma"><option value="0">non magica</option>${[1, 2, 3].map(n => `<option value="${n}" ${a.mg === n ? "selected" : ""}>+${n} magica</option>`).join("")}</select></div>
     ${info ? `<div class="atk-v"><span><small>Colpire</small><b>${shSign(info.hit)}</b></span><span><small>Danni</small><b>${esc(info.dmg)}</b><em>${esc(info.type)}</em></span></div>
+      ${slot === "r" && AMMO_FOR[a.w] ? (() => { const f = AMMO_FOR[a.w], i = ammoIndex(b, a.w), m = b.ammo[i];
+        return m ? `<div class="atk-am"><span class="q"><b>${m.q}</b>${esc(m.n)}${m.spent ? ` · ${f[3] ? "lanciati" : "tirate"} ${m.spent}` : ""}</span>
+          <button class="btn" data-act="sh-am" data-i="${i}" data-d="1" aria-label="Aggiungi 1">+1</button>
+          ${m.spent ? `<button class="btn soft" data-act="sh-am-rec" data-i="${i}">${m.thr ? `Raccogli (${m.spent})` : `Recupera metà (${Math.floor(m.spent / 2)})`}</button>` : ""}
+          <button class="btn primary" data-act="sh-am" data-i="${i}" data-d="-1" ${m.q ? "" : "disabled"}>${f[3] ? "Lancia −1" : "Tira −1"}</button></div>`
+          : `<button class="btn soft" data-act="atk-am-new" data-w="${a.w}">＋ Aggiungi ${f[0].toLowerCase()} (${f[1]})</button>`; })() : ""}
       ${info.pwFeat ? `<button class="atk-pw${info.pwOn ? " on" : ""}" data-act="atk-pw" data-slot="${slot}" aria-pressed="${info.pwOn}" ${info.pwOk ? "" : "disabled"}>
         <span class="sw" aria-hidden="true"></span><span>${slot === "m" ? "Maestro delle Armi Possenti" : "Tiratore Scelto"}: −5 / +10
         <small>${info.pwOk ? (info.pwOn ? "Attivo: tocca per tornare al colpo normale" : "Tocca prima di attaccare per il colpo potente") : slot === "m" ? "Serve un'arma pesante (spadone, ascia bipenne, maglio…)" : "Serve un'arma a distanza con munizioni"}</small></span></button>` : ""}
@@ -936,7 +1012,10 @@ function shSpeed(b, R){
   const r = raceOf(b), m = r ? String(r.speed).match(/(\d+(?:,\d+)?)\s*m/) : null;
   let v = m ? parseFloat(m[1].replace(",", ".")) : 9;
   v += R.speed;
-  if (R.speedMonk) v += b.lvl >= 18 ? 9 : b.lvl >= 14 ? 7.5 : b.lvl >= 10 ? 6 : b.lvl >= 6 ? 4.5 : 3;
+  const arm = ARMOR_BY[b.armor.a];
+  if (R.speedNoHeavy && !(arm && arm[2] === "H")) v += R.speedNoHeavy;
+  if (R.speedMonk && !arm && !b.armor.sh) v += b.lvl >= 18 ? 9 : b.lvl >= 14 ? 7.5 : b.lvl >= 10 ? 6 : b.lvl >= 6 ? 4.5 : 3;
+  if (arm && arm[5] && abv(b, "for", R) < arm[5]) v -= 3;
   return v.toLocaleString("it-IT") + " m";
 }
 function hpAuto(b, R){
@@ -1077,6 +1156,7 @@ function localStatus(){ const h = S.handles[S.active]; if (quotaWarned){ setStat
 function commit(){
   const b = book(); if (!b) return;
   const R = bonusInfo(b), ck = castKey(b); if (ck) b.score = abv(b, ck, R);
+  { const AC = acInfo(b, R); if (AC) b.ac = AC.v; }
   if (b.hp.auto){ const m = hpAuto(b, R); if (m && m !== b.hp.max){ const d = b.hp.max ? m - b.hp.max : m; b.hp.max = m; b.hp.cur = Math.max(0, Math.min(m, b.hp.cur + d)); } }
   b.updated = Date.now(); cacheLocal(); localStatus();
   const id = S.active;
@@ -1815,9 +1895,18 @@ function sheetHTML(b){
         <div class="sh-hp"><span class="of">Temporanei</span>${num("hp.tmp", b.hp.tmp, "Punti ferita temporanei", "small")}</div>
         <span class="sh-calc">${b.hp.auto && hpA ? `Massimi calcolati: ${esc(clsOf(b).hd)} + Costituzione${R.hpLvl ? ` + ${R.hpLvl} per livello` : ""}` : hpA ? `Calcolati sarebbero ${hpA}` : ""}</span>
         <button class="btn soft" data-act="hp-panel">Dettagli punti ferita…</button></div>
-      <div class="sh-box"><span class="lab">Classe armatura</span>${num("ac", b.ac, "Classe armatura")}
-        ${acs.map(a => `<button class="btn soft" style="min-height:34px;font-size:13px" data-act="bx-ac" data-v="${a.v}">${esc(a.n)}: ${a.v}</button>`).join("")}
-        ${R.style === "defense" ? `<span class="sh-calc">Stile Difesa: +1 con l'armatura indossata</span>` : ""}</div>
+      ${(() => { const AC = acInfo(b, R), A = b.armor, grp = (t, l) => `<optgroup label="${l}">${ARMORS.filter(x => x[2] === t).map(x => `<option value="${x[0]}" ${x[0] === A.a ? "selected" : ""}>${esc(x[1])} (CA ${x[3]}${t === "L" ? " + Des" : t === "M" ? " + Des max 2" : ""}, ${x[6]})</option>`).join("")}</optgroup>`;
+        return `<div class="sh-box"><span class="lab">Classe armatura</span>
+          ${AC ? `<span class="ac-big">${AC.v}</span><span class="sh-calc">calcolata</span>` : `${num("ac", b.ac, "Classe armatura")}<span class="sh-calc">scritta a mano</span>
+            ${acs.map(a => `<button class="btn soft" style="min-height:34px;font-size:13px" data-act="bx-ac" data-v="${a.v}">${esc(a.n)}: ${a.v}</button>`).join("")}`}</div>
+        <div class="sh-box arm"><span class="lab">Armatura e scudo</span>
+          <div class="arm-row"><select data-arm="a" aria-label="Armatura indossata"><option value="" ${!A.a ? "selected" : ""}>CA scritta a mano</option><option value="none" ${A.a === "none" ? "selected" : ""}>Nessuna armatura</option>${grp("L", "Leggere")}${grp("M", "Medie")}${grp("H", "Pesanti")}</select>
+            ${ARMOR_BY[A.a] ? `<select class="mg" data-arm="mg" aria-label="Bonus magico dell'armatura"><option value="0">non magica</option>${[1, 2, 3].map(n => `<option value="${n}" ${A.mg === n ? "selected" : ""}>+${n} magica</option>`).join("")}</select>` : ""}</div>
+          <div class="arm-row"><button class="shield-btn${A.sh ? " on" : ""}" data-act="arm-shield" aria-pressed="${A.sh}">🛡 Scudo ${A.sh ? `+${2 + A.shmg}` : "(+2)"}</button>
+            ${A.sh ? `<select class="mg" data-arm="shmg" aria-label="Bonus magico dello scudo"><option value="0">non magico</option>${[1, 2, 3].map(n => `<option value="${n}" ${A.shmg === n ? "selected" : ""}>+${n} magico</option>`).join("")}</select>` : ""}</div>
+          ${AC ? `<span class="sh-calc">${esc(AC.how)}${AC.notes.length ? " · " + esc(AC.notes.join(" · ")) : ""}</span>` : `<span class="sh-calc">Scegli l'armatura (anche «Nessuna») e la CA si calcola da sola.</span>`}
+          ${AC && AC.warn.length ? `<div class="arm-warn">${AC.warn.map(esc).join("<br>")}</div>` : ""}
+          ${b.atk.m.w && WEAPON_BY[b.atk.m.w] && WEAPON_BY[b.atk.m.w][4].includes("2") && A.sh ? `<div class="arm-warn">Con lo scudo non puoi usare ${esc(WEAPON_BY[b.atk.m.w][1].toLowerCase())}, che è a due mani</div>` : ""}</div>`; })()}
       <div class="sh-box"><span class="lab">Iniziativa</span><b>${shSign(shInit(b, R))}</b></div>
       <div class="sh-box"><span class="lab">Velocità</span><input type="text" data-f="speed" value="${esc(b.speed)}" placeholder="${esc(shSpeed(b, R))}" aria-label="Velocità"><span class="sh-calc">${b.speed ? "scritta a mano" : "calcolata"}</span></div>
       <div class="sh-box"><span class="lab">Competenza</span><b>${shSign(pb)}</b></div>
@@ -1832,7 +1921,7 @@ function sheetHTML(b){
       if (f.skills) parts.push("Competenza: " + f.skills.map(skN).join(", "));
       if (f.saveSame) parts.push("competenza nel TS della caratteristica scelta");
       if (f.init) parts.push(`Iniziativa +${f.init}`); if (f.initAb) parts.push(`Iniziativa + mod. di ${abN(f.initAb)}`); if (f.initProf) parts.push("Iniziativa + competenza");
-      if (f.speed) parts.push(`Velocità +${String(f.speed).replace(".", ",")} m${f.note ? ` (${f.note})` : ""}`); if (f.speedMonk) parts.push(`Velocità aumentata (${f.note})`);
+      if (f.speed) parts.push(`Velocità +${String(f.speed).replace(".", ",")} m${f.note ? ` (${f.note})` : ""}`); if (f.speedNoHeavy) parts.push(`Velocità +${f.speedNoHeavy} m (${f.note})`); if (f.acHeavy) parts.push(`+${f.acHeavy} alla CA con armatura pesante`); if (f.speedMonk) parts.push(`Velocità aumentata (${f.note})`);
       if (f.hpLvl) parts.push(`PF massimi +${f.hpLvl} per livello`); if (f.passive) parts.push(`Percezione e Indagare passivi +${f.passive}`);
       if (f.jack) parts.push("metà competenza alle prove senza competenza"); if (f.athlete) parts.push("metà competenza (arr. per eccesso) a Forza, Destrezza e Costituzione senza competenza");
       if (f.allSaves) parts.push("competenza in tutti i TS"); if (f.saveCha) parts.push("+ mod. di Carisma a tutti i TS");
@@ -1860,7 +1949,7 @@ function sheetHTML(b){
     <h3 class="sh-h">Abilità</h3>
     <p class="sh-note">Tocca un'abilità: competenza (●), poi maestria (◆), poi niente. Quelle date da specie, background e talenti sono già segnate.</p>
     <div class="sh-skills">${SH_SKILLS.map(([k, n, a]) => { const l = shSkillLvl(b, k, R), au = R.expert[k] ? "maestria" : R.skills[k] ? (R.skSrc[k] || []).join(", ") : "";
-      return `<button class="sk${l === 1 ? " p" : l === 2 ? " e" : ""}" data-act="sh-skill" data-k="${k}" aria-label="${n}: ${l === 2 ? "maestria" : l === 1 ? "competenza" : "nessuna competenza"}"><span class="pd" aria-hidden="true"></span><span class="nm">${n}<small>${SH_ABBR[a]}</small>${au ? `<span class="auto" title="${esc(au)}">auto</span>` : ""}</span><b>${shSign(shSkill(b, k, a, R))}</b></button>`; }).join("")}</div>
+      return `<button class="sk${l === 1 ? " p" : l === 2 ? " e" : ""}" data-act="sh-skill" data-k="${k}" aria-label="${n}: ${l === 2 ? "maestria" : l === 1 ? "competenza" : "nessuna competenza"}"><span class="pd" aria-hidden="true"></span><span class="nm">${n}<small>${SH_ABBR[a]}</small>${k === "furtivita" && acInfo(b, R) && acInfo(b, R).stealth ? `<span class="auto" style="color:var(--warn)">svantaggio</span>` : ""}${au ? `<span class="auto" title="${esc(au)}">auto</span>` : ""}</span><b>${shSign(shSkill(b, k, a, R))}</b></button>`; }).join("")}</div>
 
     <h3 class="sh-h">Borsa</h3>
     <div class="sh-coins">${SH_COINS.map(([k, n, , c]) => `<div class="sh-coin"><span class="cn"><span class="dot" style="background:${c}" aria-hidden="true"></span>${n}<small>${k}</small></span>
@@ -1878,7 +1967,7 @@ function sheetHTML(b){
         <button class="btn primary am-use" data-act="sh-am" data-i="${i}" data-d="-1" ${a.q ? "" : "disabled"}>Tira −1</button>
       </div>
       ${a.spent ? `<div class="am-foot">Tirate in questo combattimento: <b>${a.spent}</b>
-        <button class="btn soft" data-act="sh-am-rec" data-i="${i}">Recupera metà (${Math.floor(a.spent / 2)})</button>
+        <button class="btn soft" data-act="sh-am-rec" data-i="${i}">${a.thr ? `Raccogli tutti (${a.spent})` : `Recupera metà (${Math.floor(a.spent / 2)})`}</button>
         <button class="btn" data-act="sh-am-zero" data-i="${i}">Azzera</button></div>` : ""}
     </div>`).join("")}</div>
     <div class="am-add">${SH_AMMO.map(n => `<button class="btn soft" data-act="sh-am-new" data-n="${esc(n)}">＋ ${n}</button>`).join("")}<button class="btn" data-act="sh-am-new" data-n="">＋ Altro…</button></div>
@@ -2589,10 +2678,12 @@ document.addEventListener("click", e => {
     case "conc-start": { const s = getSpell(id); if (!s) break; toast(startConc(b, s)); commit(); refresh(); break; }
     case "conc-end": { const s = getSpell(b.conc); b.conc = ""; b.concT = b.concMax = 0; if (el.closest("#sheet")) closeSheet(); commit(); refresh(); toast(s ? `${s.n}: concentrazione terminata` : "Concentrazione terminata"); break; }
     case "conc-panel": openConcPanel(); break;
+    case "arm-shield": b.armor.sh = !b.armor.sh; commit(); renderSheet(); toast(b.armor.sh ? "Scudo imbracciato: +2 alla CA" : "Scudo tolto"); break;
+    case "atk-am-new": { const f = AMMO_FOR[el.dataset.w]; if (!f || b.ammo.length >= 20) break; b.ammo.push({ id:rid("am-"), n:f[0], q:f[1], spent:0, thr:!!f[3] }); commit(); renderSheet(); toast(`${f[0]}: ${f[1]} (cambia il numero nelle Munizioni)`); break; }
     case "atk-pw": { const a = b.atk[el.dataset.slot]; a.pw = !a.pw; commit(); renderSheet(); toast(a.pw ? "Colpo potente: −5 a colpire, +10 ai danni" : "Colpo normale"); break; }
     case "rest-long": confirmSheet("Riposo lungo?", "Recuperi tutti i punti ferita, gli slot incantesimo, l'ira e gli usi dei privilegi; la concentrazione termina.", "🌙 Riposa", () => rest("long")); break;
     case "rage-panel": openRagePanel(); break;
-    case "rage-start": { const msg = startRage(b); commit(); renderHeader(); renderSheet(); toast(msg); break; }
+    case "rage-start": { if (ARMOR_BY[b.armor.a] && ARMOR_BY[b.armor.a][2] === "H"){ toast("Con l'armatura pesante non puoi entrare in ira"); break; } const msg = startRage(b); commit(); renderHeader(); renderSheet(); toast(msg); break; }
     case "rage-end": b.rage.on = false; b.rage.t = 0; if (el.closest("#sheet")) closeSheet(); commit(); renderHeader(); renderSheet(); toast("L'ira è terminata"); break;
     case "rage-turn": { if (!b.rage.on) break; b.rage.t = clamp(b.rage.t + Number(el.dataset.d), 0, 99);
       if (!b.rage.t){ b.rage.on = false; if (el.closest("#sheet")) closeSheet(); commit(); renderHeader(); renderSheet(); toast("Il minuto è passato: l'ira è terminata"); break; }
@@ -2624,7 +2715,7 @@ document.addEventListener("click", e => {
     case "sh-am": { const a = b.ammo[+el.dataset.i]; if (!a) break; const d = Number(el.dataset.d);
       if (d < 0){ if (!a.q) break; a.q--; a.spent++; } else a.q++;
       commit(); renderSheet(); if (d < 0) toast(`${a.n}: ne restano ${a.q}`); break; }
-    case "sh-am-rec": { const a = b.ammo[+el.dataset.i]; if (!a) break; const r = Math.floor(a.spent / 2); a.q += r; a.spent = 0; commit(); renderSheet(); toast(`${a.n}: recuperate ${r}, ora ne hai ${a.q}`); break; }
+    case "sh-am-rec": { const a = b.ammo[+el.dataset.i]; if (!a) break; const r = a.thr ? a.spent : Math.floor(a.spent / 2); a.q += r; a.spent = 0; commit(); renderSheet(); toast(`${a.n}: recuperate ${r}, ora ne hai ${a.q}`); break; }
     case "sh-am-zero": { const a = b.ammo[+el.dataset.i]; if (!a) break; a.spent = 0; commit(); renderSheet(); break; }
     case "sh-am-new": { if (b.ammo.length >= 20) break; b.ammo.push({ id:rid("am-"), n:el.dataset.n || "Munizioni", q:el.dataset.n ? 20 : 0, spent:0 }); commit(); renderSheet();
       if (!el.dataset.n){ const ins = document.querySelectorAll(".am-n"); const last = ins[ins.length - 1]; if (last){ last.focus(); last.select(); } } break; }
@@ -2731,7 +2822,12 @@ document.addEventListener("change", e => {
     if (n !== b.hp[k]){ hpLog(b, k === "max" ? "m" : "t", n); if (k === "max"){ const first = !b.hp.max; b.hp.max = n; if (first || b.hp.cur > n) b.hp.cur = n; } else b.hp.tmp = n; hpChanged(); }
     return; }
   if (t.dataset && t.dataset.atk){ const b = book(), [slot, f] = t.dataset.atk.split(".");
-    b.atk[slot][f] = f === "mg" ? +t.value || 0 : t.value; commit(); renderSheet(); return; }
+    b.atk[slot][f] = f === "mg" ? +t.value || 0 : t.value;
+    let msg = "";
+    if (slot === "r" && f === "w" && AMMO_FOR[t.value] && ammoIndex(b, t.value) < 0 && b.ammo.length < 20){
+      const am = AMMO_FOR[t.value]; b.ammo.push({ id:rid("am-"), n:am[0], q:am[1], spent:0, thr:!!am[3] }); msg = `Abbinate ${am[1]} ${am[0].toLowerCase()}: cambia il numero nelle Munizioni`; }
+    commit(); renderSheet(); if (msg) toast(msg); return; }
+  if (t.dataset && t.dataset.arm){ const b = book(), f = t.dataset.arm; b.armor[f] = f === "a" ? t.value : +t.value || 0; commit(); renderHeader(); renderSheet(); return; }
   if (t.dataset && t.dataset.bx){ const b = book(), key = t.dataset.bx, c = b.ch[key] = b.ch[key] || { m:0, a:[], s:[], e:"" }, i = +t.dataset.i || 0;
     if (t.dataset.t === "m"){ c.m = +t.value || 0; c.a = []; } else if (t.dataset.t === "a") c.a[i] = t.value; else if (t.dataset.t === "s") c.s[i] = t.value; else c.e = t.value;
     commit(); renderHeader(); renderSheet(); return; }
